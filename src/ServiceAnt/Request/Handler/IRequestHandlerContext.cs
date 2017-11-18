@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace YiBan.Common.BaseAbpModule.Events.Abstractions
+namespace ServiceAnt.Handler.Request.Handler
 {
     public interface IRequestHandlerContext
     {

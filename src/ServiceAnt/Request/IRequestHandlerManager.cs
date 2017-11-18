@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace YiBan.Common.BaseAbpModule.Events.Abstractions
+namespace ServiceAnt.Handler.Request
 {
     public interface IRequestHandlerManager : IAddRequestHandler
     {
         List<IHandlerFactory> GetHandlerFactoriesForRequest(string requestName);
-        List<IHandlerFactory> GetHandlerFactoriesForRequest(IntegrationEvent @request);
+        List<IHandlerFactory> GetHandlerFactoriesForRequest(TransportTray @request);
 
         string GetRequestName(Type aType);
     }

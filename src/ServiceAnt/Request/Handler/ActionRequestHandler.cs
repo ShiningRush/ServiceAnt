@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using YiBan.Common.BaseAbpModule.Events.Abstractions;
 
-namespace YiBan.Common.BaseAbpModule.Events
+namespace ServiceAnt.Handler.Request.Handler
 {
-    public class ActionRequestHandler<TEvent> : IRequestHandler<TEvent> where TEvent : IntegrationEvent
+    public class ActionRequestHandler<TEvent> : IRequestHandler<TEvent> where TEvent : TransportTray
     {
         private Func<TEvent, IRequestHandlerContext, Task> _action;
 
         public ActionRequestHandler(Func<TEvent, IRequestHandlerContext, Task> action)
         {
+            _action = action;
         }
 
         public Task HandleAsync(TEvent param, IRequestHandlerContext handlerContext)

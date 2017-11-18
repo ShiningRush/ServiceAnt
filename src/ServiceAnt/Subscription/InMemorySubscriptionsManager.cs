@@ -1,14 +1,13 @@
-﻿using Abp.Dependency;
+﻿using ServiceAnt.Common.Extension;
+using ServiceAnt.Handler;
+using ServiceAnt.Handler.Subscription.Handler;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using YiBan.Common.BaseAbpModule.Events.Abstractions;
-using Abp.Threading.Extensions;
 
-namespace YiBan.Common.BaseAbpModule.Events
+namespace ServiceAnt.Subscription
 {
     public class InMemorySubscriptionsManager : ISubscriptionManager
     {
@@ -31,14 +30,14 @@ namespace YiBan.Common.BaseAbpModule.Events
             DoAddSubscription(factory, eventType);
         }
 
-        public void AddSubScription<TEvent>(Func<TEvent, Task> action) where TEvent : IntegrationEvent
+        public void AddSubScription<TEvent>(Func<TEvent, Task> action) where TEvent : TransportTray
         {
             var eventHandler = new ActionEventHandler<TEvent>(action);
 
             AddSubScription<TEvent>(new SingletonHandlerFactory(eventHandler, typeof(TEvent)));
         }
 
-        public void AddSubScription<TEvent>(IHandlerFactory factory) where TEvent : IntegrationEvent
+        public void AddSubScription<TEvent>(IHandlerFactory factory) where TEvent : TransportTray
         {
             DoAddSubscription(factory, typeof(TEvent));
         }
@@ -48,7 +47,7 @@ namespace YiBan.Common.BaseAbpModule.Events
             return GetOrCreateHandlerFactories(eventName);
         }
 
-        public List<IHandlerFactory> GetHandlerFactoriesForEvent(IntegrationEvent @event)
+        public List<IHandlerFactory> GetHandlerFactoriesForEvent(TransportTray @event)
         {
             return GetOrCreateHandlerFactories(GetEventName(@event.GetType()));
         }
@@ -77,7 +76,7 @@ namespace YiBan.Common.BaseAbpModule.Events
                 });
         }
 
-        public void RemoveSubscription<TEvent>(Func<TEvent, Task> action) where TEvent : IntegrationEvent
+        public void RemoveSubscription<TEvent>(Func<TEvent, Task> action) where TEvent : TransportTray
         {
             GetOrCreateHandlerFactories(typeof(TEvent).Name)
                 .Locking(factories =>

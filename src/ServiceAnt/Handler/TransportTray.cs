@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace YiBan.Common.BaseAbpModule.Events.Abstractions
+namespace ServiceAnt.Handler
 {
-    public class IntegrationEvent
+    public class TransportTray
     {
-        public IntegrationEvent()
+        public TransportTray()
         {
             Id = Guid.NewGuid();
             CreationDate = DateTime.UtcNow;
@@ -18,11 +18,11 @@ namespace YiBan.Common.BaseAbpModule.Events.Abstractions
         public DateTime CreationDate { get; }
     }
 
-    public class IntegrationEvent<TEntity> : IntegrationEvent
+    public class TransportTray<TEntity> : TransportTray
     {
         public TEntity TransportEntity { get; set; }
 
-        public IntegrationEvent(TEntity entity) : base()
+        public TransportTray(TEntity entity) : base()
         {
             TransportEntity = entity;
         }

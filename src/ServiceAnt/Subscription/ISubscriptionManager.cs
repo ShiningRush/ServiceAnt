@@ -1,15 +1,16 @@
-﻿using System;
+﻿using ServiceAnt.Handler;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace YiBan.Common.BaseAbpModule.Events.Abstractions
+namespace ServiceAnt.Subscription
 {
     public interface ISubscriptionManager : IAddSubscription
     {
         List<IHandlerFactory> GetHandlerFactoriesForEvent(string eventName);
-        List<IHandlerFactory> GetHandlerFactoriesForEvent(IntegrationEvent @event);
+        List<IHandlerFactory> GetHandlerFactoriesForEvent(TransportTray @event);
 
         string GetEventName(Type aType);
     }

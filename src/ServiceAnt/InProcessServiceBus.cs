@@ -1,32 +1,31 @@
-﻿using Abp.Dependency;
-using Castle.Core.Logging;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using ServiceAnt.Handler;
+using ServiceAnt.Handler.Request;
+using ServiceAnt.Handler.Request.Handler;
+using ServiceAnt.Handler.Subscription.Handler;
+using ServiceAnt.Infrastructure.Log;
+using ServiceAnt.Subscription;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
-using YiBan.Common.BaseAbpModule.Events.Abstractions;
 
-namespace YiBan.Common.BaseAbpModule.Events
+namespace ServiceAnt
 {
-    public class InProcessEventBus : IEventBus
+    public class InProcessServiceBus : IServiceBus
     {
         private ISubscriptionManager _subcriptionManager;
         private IRequestHandlerManager _requestHandlerManager;
 
         public ILogger Logger { get; set; }
 
-        public InProcessEventBus()
+        public InProcessServiceBus()
         {
             _subcriptionManager = new InMemorySubscriptionsManager();
             _requestHandlerManager = new InMemoryRequestHandlerManager();
-            Logger = NullLogger.Instance;
+            //Logger = NullLogger.Instance;
         }
 
-        public InProcessEventBus(ISubscriptionManager subcriptionManager)
+        public InProcessServiceBus(ISubscriptionManager subcriptionManager)
         {
             _subcriptionManager = subcriptionManager;
         }
@@ -44,12 +43,12 @@ namespace YiBan.Common.BaseAbpModule.Events
             _subcriptionManager.AddSubScription(eventType, factory);
         }
 
-        public void AddSubScription<TEvent>(Func<TEvent, Task> action) where TEvent : IntegrationEvent
+        public void AddSubScription<TEvent>(Func<TEvent, Task> action) where TEvent : TransportTray
         {
             _subcriptionManager.AddSubScription<TEvent>(action);
         }
 
-        public void AddSubScription<TEvent>(IHandlerFactory factory) where TEvent : IntegrationEvent
+        public void AddSubScription<TEvent>(IHandlerFactory factory) where TEvent : TransportTray
         {
             _subcriptionManager.AddSubScription<TEvent>(factory);
         }
@@ -59,12 +58,12 @@ namespace YiBan.Common.BaseAbpModule.Events
             _subcriptionManager.RemoveDynamicSubscription(eventName, action);
         }
 
-        public void RemoveSubscription<TEvent>(Func<TEvent, Task> action) where TEvent : IntegrationEvent
+        public void RemoveSubscription<TEvent>(Func<TEvent, Task> action) where TEvent : TransportTray
         {
             _subcriptionManager.RemoveSubscription<TEvent>(action);
         }
 
-        public void Publish(IntegrationEvent @event)
+        public void Publish(TransportTray @event)
         {
             var asyncTask = ProcessEvent(_subcriptionManager.GetEventName(@event.GetType()), JsonConvert.SerializeObject(@event));
         }
@@ -73,7 +72,7 @@ namespace YiBan.Common.BaseAbpModule.Events
         /// It's for Unit test
         /// </summary>
         /// <param name="event"></param>
-        public void PublishSync(IntegrationEvent @event)
+        public void PublishSync(TransportTray @event)
         {
             var asyncTask = ProcessEvent(_subcriptionManager.GetEventName(@event.GetType()), JsonConvert.SerializeObject(@event));
             asyncTask.Wait();
@@ -122,13 +121,13 @@ namespace YiBan.Common.BaseAbpModule.Events
         }
 
         public void AddRequestHandler<TEvent>(IHandlerFactory factory)
-            where TEvent : IntegrationEvent
+            where TEvent : TransportTray
         {
             _requestHandlerManager.AddRequestHandler<TEvent>(factory);
         }
 
         public void AddRequestHandler<TEvent>(Func<TEvent, IRequestHandlerContext, Task> action)
-            where TEvent : IntegrationEvent
+            where TEvent : TransportTray
         {
             _requestHandlerManager.AddRequestHandler<TEvent>(action);
         }
@@ -140,7 +139,7 @@ namespace YiBan.Common.BaseAbpModule.Events
 
 
         public void RemoveRequestHandler<TEvent>(Func<TEvent, IRequestHandlerContext, Task> action)
-            where TEvent : IntegrationEvent
+            where TEvent : TransportTray
         {
             _requestHandlerManager.RemoveRequestHandler(action);
         }
@@ -149,14 +148,14 @@ namespace YiBan.Common.BaseAbpModule.Events
             _requestHandlerManager.RemoveDynamicRequestHandler(eventName, action);
         }
 
-        public T Send<T>(IntegrationEvent @event)
+        public T Send<T>(TransportTray @event)
         {
             var asyncTask = ProcessRequest<T>(_requestHandlerManager.GetRequestName(@event.GetType()), JsonConvert.SerializeObject(@event));
             asyncTask.ConfigureAwait(false);
             return asyncTask.Result;
         }
 
-        public async Task<T> SendAsync<T>(IntegrationEvent @event)
+        public async Task<T> SendAsync<T>(TransportTray @event)
         {
             return await ProcessRequest<T>(_requestHandlerManager.GetRequestName(@event.GetType()), JsonConvert.SerializeObject(@event));
         }

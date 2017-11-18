@@ -1,32 +1,32 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using ServiceAnt;
+using ServiceAnt.Handler;
+using ServiceAnt.Handler.Request.Handler;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using YiBan.Common.BaseAbpModule.Events;
-using YiBan.Common.BaseAbpModule.Events.Abstractions;
-using YiBan.Common.BaseAbpModule.Events.Entities;
 
 namespace YiBan.Common.BaseAbpModule.Tests.Events
 {
     [TestClass]
-    public class InProcessEventBus_Test
+    public class InProcessServiceBus_Test
     {
-        private class TestEventData : IntegrationEvent
+        private class TestEventData : TransportTray
         {
             public string Msg { get; set; }
         }
 
-        private class TestEventDataWithParam : IntegrationEvent
+        private class TestEventDataWithParam : TransportTray
         {
             public TestEventDataWithParam(string Msg) { }
 
             public string Msg { get; set; }
         }
 
-        private class TestEventDataT<T> : IntegrationEvent<T>
+        private class TestEventDataT<T> : TransportTray<T>
         {
             public TestEventDataT(T test) : base(test) { }
 
@@ -37,7 +37,7 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
         [TestMethod]
         public void DynamicSubscription_ShouldTrigger()
         {
-            var eventBus = new InProcessEventBus();
+            var eventBus = new InProcessServiceBus();
             var result = "error";
 
             eventBus.AddDynamicSubScription(typeof(TestEventData).Name, eventData =>
@@ -57,7 +57,7 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
         [TestMethod]
         public void DynamicSubscription_ShouldNotTrigger_AfterRemove()
         {
-            var eventBus = new InProcessEventBus();
+            var eventBus = new InProcessServiceBus();
             var result = "error";
 
             Func<dynamic, Task> delateFunc = eventData =>
@@ -83,7 +83,7 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
         [TestMethod]
         public void Subscription_ShouldTrigger()
         {
-            var eventBus = new InProcessEventBus();
+            var eventBus = new InProcessServiceBus();
             var result = "error";
 
             eventBus.AddSubScription<TestEventData>(eventData =>
@@ -104,7 +104,7 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
         [TestMethod]
         public void Subscription_ShouldNotTrigger_AfterRemove()
         {
-            var eventBus = new InProcessEventBus();
+            var eventBus = new InProcessServiceBus();
             var result = "error";
 
             Func<TestEventData, Task> delateFunc = eventData =>
@@ -130,7 +130,7 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
         [TestMethod]
         public void MutipleSubscription_ShouldTrigger()
         {
-            var eventBus = new InProcessEventBus();
+            var eventBus = new InProcessServiceBus();
             var result = "error";
 
             eventBus.AddSubScription<TestEventData>(eventData =>
@@ -159,7 +159,7 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
         [TestMethod]
         public void GenericSubscription_ShouldTrigger()
         {
-            var eventBus = new InProcessEventBus();
+            var eventBus = new InProcessServiceBus();
             var result = "error";
 
             eventBus.AddSubScription<TestEventDataT<TestEventData>>(eventData =>
@@ -180,7 +180,7 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
         [TestMethod]
         public void SubscriptionEventDataWithParam_ShouldTrigger()
         {
-            var eventBus = new InProcessEventBus();
+            var eventBus = new InProcessServiceBus();
             var result = "error";
 
             eventBus.AddSubScription<TestEventDataWithParam>(eventData =>
@@ -198,32 +198,32 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
             Assert.AreEqual(testEventData.Msg, result);
         }
 
-        [TestMethod]
-        public void SubscriptionEntityEvent_ShouldTrigger()
-        {
-            var eventBus = new InProcessEventBus();
-            var result = "error";
+        //[TestMethod]
+        //public void SubscriptionEntityEvent_ShouldTrigger()
+        //{
+        //    var eventBus = new InProcessServiceBus();
+        //    var result = "error";
 
-            eventBus.AddSubScription<EntityCreatedEventData<TestEventData>>(eventData =>
-            {
-                return Task.Run(() =>
-                {
-                    result = eventData.TransportEntity.Msg;
-                });
-            });
+        //    eventBus.AddSubScription<EntityCreatedEventData<TestEventData>>(eventData =>
+        //    {
+        //        return Task.Run(() =>
+        //        {
+        //            result = eventData.TransportEntity.Msg;
+        //        });
+        //    });
 
-            var entity = new TestEventData() { Msg = "success" };
-            var testEventData = new EntityCreatedEventData<TestEventData>(entity);
-            eventBus.PublishSync(testEventData);
+        //    var entity = new TestEventData() { Msg = "success" };
+        //    var testEventData = new EntityCreatedEventData<TestEventData>(entity);
+        //    eventBus.PublishSync(testEventData);
 
 
-            Assert.AreEqual(testEventData.TransportEntity.Msg, result);
-        }
+        //    Assert.AreEqual(testEventData.TransportEntity.Msg, result);
+        //}
 
         [TestMethod]
         public void ShouldSupport_MutipleSameHandler()
         {
-            var eventBus = new InProcessEventBus();
+            var eventBus = new InProcessServiceBus();
             var result1 = "error";
             var result2 = "error";
 
@@ -254,7 +254,7 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
         [TestMethod]
         public void MutipleGenericSubscription_ByDifferentNameSpace_ShouldTrigger()
         {
-            var eventBus = new InProcessEventBus();
+            var eventBus = new InProcessServiceBus();
             var result = "error";
             var result2 = "error";
 
@@ -288,7 +288,7 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
         [TestMethod]
         public void DynamicRequest_ShouldResponse()
         {
-            var eventBus = new InProcessEventBus();
+            var eventBus = new InProcessServiceBus();
 
             eventBus.AddDynamicRequestHandler(typeof(TestEventData).Name, (eventData, context) =>
             {
@@ -307,7 +307,7 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
         [TestMethod]
         public void DynamicRequest_ShouldNotResponse_AfteRemove()
         {
-            var eventBus = new InProcessEventBus();
+            var eventBus = new InProcessServiceBus();
             Func<dynamic, IRequestHandlerContext, Task> delateFunc = (eventData, context) =>
             {
                 return Task.Run(() =>
@@ -328,7 +328,7 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
         [TestMethod]
         public void Request_ShouldResponse()
         {
-            var eventBus = new InProcessEventBus();
+            var eventBus = new InProcessServiceBus();
 
             eventBus.AddRequestHandler<TestEventData>((eventData, context) =>
             {
@@ -347,7 +347,7 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
         [TestMethod]
         public void Request_ShouldNotResponse_AfteRemove()
         {
-            var eventBus = new InProcessEventBus();
+            var eventBus = new InProcessServiceBus();
 
             Func<dynamic, IRequestHandlerContext, Task> delateFunc = (eventData, context) =>
             {
@@ -369,7 +369,7 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
         [TestMethod]
         public void MutipleRequestHandler_ShouldResponseForPipeline()
         {
-            var eventBus = new InProcessEventBus();
+            var eventBus = new InProcessServiceBus();
 
             eventBus.AddRequestHandler<TestEventData>((eventData, context) =>
             {
@@ -397,7 +397,7 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
         [TestMethod]
         public void GenericRequest_ShouldResponse()
         {
-            var eventBus = new InProcessEventBus();
+            var eventBus = new InProcessServiceBus();
 
             eventBus.AddRequestHandler<TestEventDataT<TestEventData>>((eventData, context) =>
             {
@@ -416,7 +416,7 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
         [TestMethod]
         public void MutipleGenericRequestHandler_ByDifferentNameSpace_ShouldResponse()
         {
-            var eventBus = new InProcessEventBus();
+            var eventBus = new InProcessServiceBus();
 
             eventBus.AddRequestHandler<TestEventDataT<TestEventData>>((eventData, context) =>
             {

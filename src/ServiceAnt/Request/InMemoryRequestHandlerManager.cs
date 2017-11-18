@@ -1,13 +1,12 @@
-﻿using Abp.Threading.Extensions;
+﻿using ServiceAnt.Common.Extension;
+using ServiceAnt.Handler.Request.Handler;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using YiBan.Common.BaseAbpModule.Events.Abstractions;
 
-namespace YiBan.Common.BaseAbpModule.Events
+namespace ServiceAnt.Handler.Request
 {
     public class InMemoryRequestHandlerManager : IRequestHandlerManager
     {
@@ -30,19 +29,19 @@ namespace YiBan.Common.BaseAbpModule.Events
             DoAddRequestHandler(factory, eventType);
         }
 
-        public void AddRequestHandler<TEvent>(Func<TEvent, IRequestHandlerContext, Task> action) where TEvent : IntegrationEvent
+        public void AddRequestHandler<TEvent>(Func<TEvent, IRequestHandlerContext, Task> action) where TEvent : TransportTray
         {
             var eventHandler = new ActionRequestHandler<TEvent>(action);
 
             AddRequestHandler<TEvent>(new SingletonHandlerFactory(eventHandler, typeof(TEvent)));
         }
 
-        public void AddRequestHandler<TEvent>(IHandlerFactory factory) where TEvent : IntegrationEvent
+        public void AddRequestHandler<TEvent>(IHandlerFactory factory) where TEvent : TransportTray
         {
             DoAddRequestHandler(factory, typeof(TEvent));
         }
 
-        public List<IHandlerFactory> GetHandlerFactoriesForRequest(IntegrationEvent request)
+        public List<IHandlerFactory> GetHandlerFactoriesForRequest(TransportTray request)
         {
             return GetOrCreateHandlerFactories(GetRequestName(request.GetType()));
         }
@@ -88,7 +87,7 @@ namespace YiBan.Common.BaseAbpModule.Events
                 });
         }
 
-        public void RemoveRequestHandler<TEvent>(Func<TEvent, IRequestHandlerContext, Task> action) where TEvent : IntegrationEvent
+        public void RemoveRequestHandler<TEvent>(Func<TEvent, IRequestHandlerContext, Task> action) where TEvent : TransportTray
         {
             GetOrCreateHandlerFactories(typeof(TEvent).Name)
                 .Locking(factories =>

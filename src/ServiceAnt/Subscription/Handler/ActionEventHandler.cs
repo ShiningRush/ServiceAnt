@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using YiBan.Common.BaseAbpModule.Events.Abstractions;
 
-namespace YiBan.Common.BaseAbpModule.Events
+namespace ServiceAnt.Handler.Subscription.Handler
 {
-    public class ActionEventHandler<TEvent> : IEventHandler<TEvent> where TEvent : IntegrationEvent
+    public class ActionEventHandler<TEvent> : IEventHandler<TEvent> where TEvent : TransportTray
     {
         private Func<TEvent, Task> _action;
 
