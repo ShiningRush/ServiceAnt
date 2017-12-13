@@ -4,7 +4,6 @@ using ServiceAnt.Handler;
 using ServiceAnt.Handler.Request;
 using ServiceAnt.Handler.Request.Handler;
 using ServiceAnt.Handler.Subscription.Handler;
-using ServiceAnt.Infrastructure.Log;
 using ServiceAnt.Subscription;
 using System;
 using System.Threading.Tasks;
@@ -16,13 +15,12 @@ namespace ServiceAnt
         private ISubscriptionManager _subcriptionManager;
         private IRequestHandlerManager _requestHandlerManager;
 
-        public ILogger Logger { get; set; }
+        public event Action<string, string, Exception> OnBusMessagePubishing;
 
         public InProcessServiceBus()
         {
             _subcriptionManager = new InMemorySubscriptionsManager();
             _requestHandlerManager = new InMemoryRequestHandlerManager();
-            //Logger = NullLogger.Instance;
         }
 
         public InProcessServiceBus(ISubscriptionManager subcriptionManager)
@@ -106,7 +104,7 @@ namespace ServiceAnt
                 }
                 catch (Exception ex)
                 {
-                    Logger.Debug("触发事件总线时发生错误。", ex);
+                    LogMessage( "error", "There has raised a error when publishing event.", ex);
                 }
             }
         }
@@ -191,12 +189,17 @@ namespace ServiceAnt
                 }
                 catch (Exception ex)
                 {
-                    Logger.Debug("发送请求事件时发生错误。", ex);
+                    LogMessage( "error", "There has raised a error when send request.", ex);
                 }
             }
 
             return (T)requestContext.Response;
         }
         #endregion
+
+        private void LogMessage(string type, string value, Exception ex)
+        {
+            OnBusMessagePubishing(type, value, ex);
+        }
     }
 }

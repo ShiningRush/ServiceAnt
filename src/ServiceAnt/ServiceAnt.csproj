@@ -51,7 +51,6 @@
     <Compile Include="Handler\SingletonHandlerFactory.cs" />
     <Compile Include="Handler\TransportTray.cs" />
     <Compile Include="Infrastructure\Dependency\IIocResolver.cs" />
-    <Compile Include="Infrastructure\Log\ILogger.cs" />
     <Compile Include="InProcessServiceBus.cs" />
     <Compile Include="IServiceBus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
