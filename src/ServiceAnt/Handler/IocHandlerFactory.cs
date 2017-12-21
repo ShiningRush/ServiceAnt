@@ -2,7 +2,7 @@
 using ServiceAnt.Infrastructure.Dependency;
 using System;
 
-namespace YiBan.Common.BaseAbpModule.Events
+namespace ServiceAnt.Handler
 {
     public class IocHandlerFactory : IHandlerFactory
     {
@@ -19,7 +19,7 @@ namespace YiBan.Common.BaseAbpModule.Events
 
         public IHandler GetHandler()
         {
-            return (IHandler)_iocResolver.Resolve(_handlerType);
+            return _iocResolver.Resolve<IHandler>(_handlerType);
         }
 
         public void ReleaseHandler(object obj)

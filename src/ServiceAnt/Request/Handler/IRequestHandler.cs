@@ -1,14 +1,14 @@
-﻿using System;
+﻿using ServiceAnt.Handler;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ServiceAnt.Handler.Request.Handler
+namespace ServiceAnt.Request.Handler
 {
     public interface IRequestHandler : IHandler
     {
-
     }
 
     public interface IRequestHandler<TEvent> : IRequestHandler where TEvent : TransportTray

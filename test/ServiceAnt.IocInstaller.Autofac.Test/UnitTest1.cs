@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace ServiceAnt.test
+namespace ServiceAnt.IocInstaller.Autofac.Test
 {
     [TestClass]
     public class UnitTest1

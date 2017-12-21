@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceAnt;
 using ServiceAnt.Handler;
-using ServiceAnt.Handler.Request.Handler;
+using ServiceAnt.Request.Handler;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -305,7 +305,7 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
         }
 
         [TestMethod]
-        public void DynamicRequest_ShouldNotResponse_AfteRemove()
+        public void DynamicRequest_ShouldNotResponse_AfterRemove()
         {
             var eventBus = new InProcessServiceBus();
             Func<dynamic, IRequestHandlerContext, Task> delateFunc = (eventData, context) =>
@@ -391,6 +391,34 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
             var result = eventBus.Send<string>(testEventData);
 
             Assert.AreEqual(testEventData.Msg + "12", result);
+        }
+
+        [TestMethod]
+        public void MutipleRequestHandler_ShouldResponseForPipeline_ReturnFirst()
+        {
+            var eventBus = new InProcessServiceBus();
+
+            eventBus.AddRequestHandler<TestEventData>((eventData, context) =>
+            {
+                return Task.Run(() =>
+                {
+                    context.Response = eventData.Msg + "1";
+                    context.IsEnd = true;
+                });
+            });
+
+            eventBus.AddRequestHandler<TestEventData>((eventData, context) =>
+            {
+                return Task.Run(() =>
+                {
+                    context.Response = context.Response + "2";
+                });
+            });
+
+            var testEventData = new TestEventData() { Msg = "success" };
+            var result = eventBus.Send<string>(testEventData);
+
+            Assert.AreEqual(testEventData.Msg + "1", result);
         }
 
 

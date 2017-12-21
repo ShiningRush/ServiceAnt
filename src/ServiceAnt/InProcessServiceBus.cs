@@ -2,10 +2,11 @@
 using Newtonsoft.Json.Linq;
 using ServiceAnt.Handler;
 using ServiceAnt.Handler.Request;
-using ServiceAnt.Handler.Request.Handler;
 using ServiceAnt.Handler.Subscription.Handler;
+using ServiceAnt.Request.Handler;
 using ServiceAnt.Subscription;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace ServiceAnt
@@ -15,7 +16,7 @@ namespace ServiceAnt
         private ISubscriptionManager _subcriptionManager;
         private IRequestHandlerManager _requestHandlerManager;
 
-        public event Action<string, string, Exception> OnBusMessagePubishing;
+        public event Action<string, string, Exception> OnLogBusMessage;
 
         public InProcessServiceBus()
         {
@@ -23,9 +24,10 @@ namespace ServiceAnt
             _requestHandlerManager = new InMemoryRequestHandlerManager();
         }
 
-        public InProcessServiceBus(ISubscriptionManager subcriptionManager)
+        public InProcessServiceBus(ISubscriptionManager subcriptionManager, IRequestHandlerManager requestHandlerManager)
         {
             _subcriptionManager = subcriptionManager;
+            _requestHandlerManager = requestHandlerManager;
         }
 
         #region Pub/Sub
@@ -61,9 +63,10 @@ namespace ServiceAnt
             _subcriptionManager.RemoveSubscription<TEvent>(action);
         }
 
-        public void Publish(TransportTray @event)
+        public Task Publish(TransportTray @event)
         {
             var asyncTask = ProcessEvent(_subcriptionManager.GetEventName(@event.GetType()), JsonConvert.SerializeObject(@event));
+            return asyncTask;
         }
 
         /// <summary>
@@ -162,10 +165,14 @@ namespace ServiceAnt
         {
             var handlerFactories = _requestHandlerManager.GetHandlerFactoriesForRequest(eventName);
             var requestContext = new RequestHandlerContext();
+            if (handlerFactories.Count == 0)
+                return default(T);
+
             foreach (var aHandlerFactory in handlerFactories)
             {
                 if (requestContext.IsEnd)
                     break;
+
                 try
                 {
                     var aHandler = aHandlerFactory.GetHandler();
@@ -189,17 +196,18 @@ namespace ServiceAnt
                 }
                 catch (Exception ex)
                 {
-                    LogMessage( "error", "There has raised a error when send request.", ex);
+                    LogMessage("error", "There has raised a error when send request.", ex);
                 }
             }
 
             return (T)requestContext.Response;
         }
+
         #endregion
 
         private void LogMessage(string type, string value, Exception ex)
         {
-            OnBusMessagePubishing(type, value, ex);
+            OnLogBusMessage?.Invoke(type, value, ex);
         }
     }
 }
