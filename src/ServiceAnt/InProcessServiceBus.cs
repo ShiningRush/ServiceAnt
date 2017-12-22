@@ -18,6 +18,9 @@ namespace ServiceAnt
 
         public event Action<string, string, Exception> OnLogBusMessage;
 
+        private static Lazy<InProcessServiceBus> _defaultInstance = new Lazy<InProcessServiceBus>();
+        public static InProcessServiceBus Default => _defaultInstance.Value;
+
         public InProcessServiceBus()
         {
             _subcriptionManager = new InMemorySubscriptionsManager();

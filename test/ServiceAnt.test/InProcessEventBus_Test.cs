@@ -35,7 +35,7 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
 
         #region EventTests
         [TestMethod]
-        public void DynamicSubscription_ShouldTrigger()
+        public async Task DynamicSubscription_ShouldTrigger()
         {
             var eventBus = new InProcessServiceBus();
             var result = "error";
@@ -49,7 +49,7 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
             });
 
             var testEventData = new TestEventData() { Msg = "success" };
-            eventBus.PublishSync(testEventData);
+            await eventBus.Publish(testEventData);
 
             Assert.AreEqual(testEventData.Msg, result);
         }

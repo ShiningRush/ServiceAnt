@@ -16,11 +16,13 @@ namespace ServiceAnt.IocInstaller.Castle
 {
     public class ServiceAntInstaller : IWindsorInstaller
     {
+        private readonly Assembly[] _handlerAssemblies;
         private IWindsorContainer _container;
         private IServiceBus _serviceBus;
 
-        public ServiceAntInstaller()
+        public ServiceAntInstaller(params Assembly[] handlerAssemblies)
         {
+            _handlerAssemblies = handlerAssemblies;
         }
 
         public void Install(IWindsorContainer container, IConfigurationStore store)
@@ -28,13 +30,22 @@ namespace ServiceAnt.IocInstaller.Castle
             _container = container;
 
             container.Register(
-                Component.For<IServiceBus>().ImplementedBy<InProcessServiceBus>().LifestyleSingleton(),
+                Component.For<IServiceBus>().Instance(InProcessServiceBus.Default),
                 Component.For<ISubscriptionManager>().ImplementedBy<InMemorySubscriptionsManager>().LifestyleSingleton(),
                 Component.For<IRequestHandlerManager>().ImplementedBy<InMemoryRequestHandlerManager>().LifestyleSingleton());
 
-
             _serviceBus = container.Resolve<IServiceBus>();
             container.Kernel.ComponentRegistered += Kernel_ComponentRegistered;
+
+            foreach (var aHandlerAssembly in _handlerAssemblies)
+            {
+                container.Register(Classes.FromAssembly(aHandlerAssembly)
+                    .BasedOn<ServiceAnt.Handler.IHandler>()
+                    .WithService.Self()
+                    .LifestyleTransient());
+            }
+
+
         }
 
         private void Kernel_ComponentRegistered(string key, IHandler handler)
