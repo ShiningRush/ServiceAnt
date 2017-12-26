@@ -7,17 +7,24 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{0E041832-D5A
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{BDFDFA2C-DA6F-4405-B7B0-31D1B0997150}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceAnt.Test", "test\ServiceAnt.test\ServiceAnt.Test.csproj", "{C1990ED7-2C77-453E-BFE3-5F43E1654CF0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceAnt.Test", "test\ServiceAnt.test\ServiceAnt.Test.csproj", "{C1990ED7-2C77-453E-BFE3-5F43E1654CF0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceAnt", "src\ServiceAnt\ServiceAnt.csproj", "{FB6688E2-094A-4D25-9EEA-85C3B7CCC4A2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceAnt", "src\ServiceAnt\ServiceAnt.csproj", "{FB6688E2-094A-4D25-9EEA-85C3B7CCC4A2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceAnt.IocInstaller.Castle", "src\ServiceAnt.IocInstaller.Castle\ServiceAnt.IocInstaller.Castle.csproj", "{B64F120C-36DB-4D4A-8D30-D113CF70BF1A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceAnt.IocInstaller.Castle", "src\ServiceAnt.IocInstaller.Castle\ServiceAnt.IocInstaller.Castle.csproj", "{B64F120C-36DB-4D4A-8D30-D113CF70BF1A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceAnt.IocInstaller.Castle.Test", "test\ServiceAnt.IocInstaller.Castle.test\ServiceAnt.IocInstaller.Castle.Test.csproj", "{288BFA2A-3CA4-4C7A-B912-C953AD11863A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceAnt.IocInstaller.Castle.Test", "test\ServiceAnt.IocInstaller.Castle.test\ServiceAnt.IocInstaller.Castle.Test.csproj", "{288BFA2A-3CA4-4C7A-B912-C953AD11863A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceAnt.IocInstaller.Autofac", "src\ServiceAnt.IocInstaller.Autofac\ServiceAnt.IocInstaller.Autofac.csproj", "{1FA5221C-9A54-4132-B7CF-CF7CC7A30E59}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceAnt.IocInstaller.Autofac", "src\ServiceAnt.IocInstaller.Autofac\ServiceAnt.IocInstaller.Autofac.csproj", "{1FA5221C-9A54-4132-B7CF-CF7CC7A30E59}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceAnt.IocInstaller.Autofac.Test", "test\ServiceAnt.IocInstaller.Autofac.Test\ServiceAnt.IocInstaller.Autofac.Test.csproj", "{ABC9A287-31CC-422B-84A2-6EAEF0BD448E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceAnt.IocInstaller.Autofac.Test", "test\ServiceAnt.IocInstaller.Autofac.Test\ServiceAnt.IocInstaller.Autofac.Test.csproj", "{ABC9A287-31CC-422B-84A2-6EAEF0BD448E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{5220EBDE-1FFD-4155-85A9-9A87DF0C073C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{4FE1FF00-52E7-4311-A21F-7C34831E62F1}"
+	ProjectSection(SolutionItems) = preProject
+		src\Directory.Build.props = src\Directory.Build.props
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -60,6 +67,7 @@ Global
 		{288BFA2A-3CA4-4C7A-B912-C953AD11863A} = {BDFDFA2C-DA6F-4405-B7B0-31D1B0997150}
 		{1FA5221C-9A54-4132-B7CF-CF7CC7A30E59} = {0E041832-D5A5-4220-BD7D-95B03E66FF98}
 		{ABC9A287-31CC-422B-84A2-6EAEF0BD448E} = {BDFDFA2C-DA6F-4405-B7B0-31D1B0997150}
+		{4FE1FF00-52E7-4311-A21F-7C34831E62F1} = {5220EBDE-1FFD-4155-85A9-9A87DF0C073C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {52E5EADF-2B54-4C50-BF32-93550974966D}

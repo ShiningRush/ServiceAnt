@@ -115,9 +115,9 @@ namespace ServiceAnt
             }
         }
 
-        #endregion
+#endregion
 
-        #region Req/Resp
+#region Req/Resp
 
         public void AddRequestHandler(Type eventType, IHandlerFactory factory)
         {
@@ -206,7 +206,7 @@ namespace ServiceAnt
             return (T)requestContext.Response;
         }
 
-        #endregion
+#endregion
 
         private void LogMessage(string type, string value, Exception ex)
         {

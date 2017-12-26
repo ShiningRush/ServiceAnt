@@ -1,0 +1,12 @@
+<Project>
+  <PropertyGroup Label="Common package properties">
+    <Authors>ShiningRush</Authors>
+    <Copyright>Copyright (c) ServiceAnt contributors. (https://github.com/ShiningRush/ServiceAnt)</Copyright>
+    <PackageProjectUrl>https://github.com/ShiningRush/ServiceAnt</PackageProjectUrl>
+    <PackageIconUrl></PackageIconUrl>
+    <PackageLicenseUrl>https://github.com/ShiningRush/ServiceAnt/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageReleaseNotes></PackageReleaseNotes>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
+    <Version>2.0.0-clinteastwood</Version>
+  </PropertyGroup>
+</Project>

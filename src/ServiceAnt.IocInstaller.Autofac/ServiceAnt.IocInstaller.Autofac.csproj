@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>The DI installer of ServiceAnt for Autofac</Description>
-    <PackageTags>$(PackageTags);OWIN</PackageTags>
-    <TargetFramework>net452</TargetFramework>
+    <Description>The IOC installer of ServiceAnt for Autofac</Description>
+    <PackageTags>$(PackageTags)</PackageTags>
+    <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
