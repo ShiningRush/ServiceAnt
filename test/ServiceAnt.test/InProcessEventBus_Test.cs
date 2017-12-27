@@ -40,7 +40,7 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
             var eventBus = new InProcessServiceBus();
             var result = "error";
 
-            eventBus.AddDynamicSubScription(typeof(TestEventData).Name, eventData =>
+            eventBus.AddDynamicSubscription(typeof(TestEventData).Name, eventData =>
             {
                 return Task.Run(() =>
                 {
@@ -67,7 +67,7 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
                     result = eventData.Msg;
                 });
             };
-            eventBus.AddDynamicSubScription(typeof(TestEventData).Name, delateFunc);
+            eventBus.AddDynamicSubscription(typeof(TestEventData).Name, delateFunc);
 
             var testEventData = new TestEventData() { Msg = "success" };
             eventBus.PublishSync(testEventData);
@@ -86,7 +86,7 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
             var eventBus = new InProcessServiceBus();
             var result = "error";
 
-            eventBus.AddSubScription<TestEventData>(eventData =>
+            eventBus.AddSubscription<TestEventData>(eventData =>
             {
                 return Task.Run(() =>
                 {
@@ -114,7 +114,7 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
                     result = eventData.Msg;
                 });
             };
-            eventBus.AddSubScription<TestEventData>(delateFunc);
+            eventBus.AddSubscription<TestEventData>(delateFunc);
 
             var testEventData = new TestEventData() { Msg = "success" };
             eventBus.PublishSync(testEventData);
@@ -133,7 +133,7 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
             var eventBus = new InProcessServiceBus();
             var result = "error";
 
-            eventBus.AddSubScription<TestEventData>(eventData =>
+            eventBus.AddSubscription<TestEventData>(eventData =>
             {
                 return Task.Run(() =>
                 {
@@ -141,7 +141,7 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
                 });
             });
 
-            eventBus.AddSubScription<TestEventData>(eventData =>
+            eventBus.AddSubscription<TestEventData>(eventData =>
             {
                 return Task.Run(() =>
                 {
@@ -162,7 +162,7 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
             var eventBus = new InProcessServiceBus();
             var result = "error";
 
-            eventBus.AddSubScription<TestEventDataT<TestEventData>>(eventData =>
+            eventBus.AddSubscription<TestEventDataT<TestEventData>>(eventData =>
             {
                 return Task.Run(() =>
                 {
@@ -183,7 +183,7 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
             var eventBus = new InProcessServiceBus();
             var result = "error";
 
-            eventBus.AddSubScription<TestEventDataWithParam>(eventData =>
+            eventBus.AddSubscription<TestEventDataWithParam>(eventData =>
             {
                 return Task.Run(() =>
                 {
@@ -227,7 +227,7 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
             var result1 = "error";
             var result2 = "error";
 
-            eventBus.AddSubScription<TestEventData>(eventData =>
+            eventBus.AddSubscription<TestEventData>(eventData =>
             {
                 return Task.Run(() =>
                 {
@@ -235,7 +235,7 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
                 });
             });
 
-            eventBus.AddSubScription<TestEventData>(eventData =>
+            eventBus.AddSubscription<TestEventData>(eventData =>
             {
                 return Task.Run(() =>
                 {
@@ -258,7 +258,7 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
             var result = "error";
             var result2 = "error";
 
-            eventBus.AddSubScription<TestEventDataT<TestEventData>>(eventData =>
+            eventBus.AddSubscription<TestEventDataT<TestEventData>>(eventData =>
             {
                 return Task.Run(() =>
                 {
@@ -266,7 +266,7 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
                 });
             });
 
-            eventBus.AddSubScription<TestEventDataT<TestDemo.TestEventData>>(eventData =>
+            eventBus.AddSubscription<TestEventDataT<TestDemo.TestEventData>>(eventData =>
             {
                 return Task.Run(() =>
                 {

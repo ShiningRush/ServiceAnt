@@ -14,12 +14,19 @@ using System.Threading.Tasks;
 
 namespace ServiceAnt.IocInstaller.Castle
 {
+    /// <summary>
+    /// It used to install ServiceAnt to Ioc of Castle
+    /// </summary>
     public class ServiceAntInstaller : IWindsorInstaller
     {
         private readonly Assembly[] _handlerAssemblies;
         private IWindsorContainer _container;
         private IServiceBus _serviceBus;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="handlerAssemblies"> the assemblies which containg handler, thos will be register to container</param>
         public ServiceAntInstaller(params Assembly[] handlerAssemblies)
         {
             _handlerAssemblies = handlerAssemblies;
@@ -71,7 +78,7 @@ namespace ServiceAnt.IocInstaller.Castle
                     if (typeof(IRequestHandler).GetTypeInfo().IsAssignableFrom(aInterface))
                         _serviceBus.AddRequestHandler(genericArgs[0], new ServiceAnt.Handler.IocHandlerFactory(resolver, handler.ComponentModel.Implementation, genericArgs[0]));
                     else
-                        _serviceBus.AddSubScription(genericArgs[0], new ServiceAnt.Handler.IocHandlerFactory(resolver, handler.ComponentModel.Implementation, genericArgs[0]));
+                        _serviceBus.AddSubscription(genericArgs[0], new ServiceAnt.Handler.IocHandlerFactory(resolver, handler.ComponentModel.Implementation, genericArgs[0]));
                 }
             }
         }

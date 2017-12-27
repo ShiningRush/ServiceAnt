@@ -2,6 +2,9 @@
 
 namespace ServiceAnt.Infrastructure.Dependency
 {
+    /// <summary>
+    /// IocResolver
+    /// </summary>
     public interface IIocResolver
     {
         /// <summary>

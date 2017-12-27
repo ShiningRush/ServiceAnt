@@ -11,15 +11,26 @@ using System.Threading.Tasks;
 
 namespace ServiceAnt.IocInstaller.Autofac
 {
+    /// <summary>
+    /// It used to install ServiceAnt to Ioc of Autofac
+    /// </summary>
     public class ServiceAntModule : Module
     {
         private static System.Reflection.Assembly[] _handlerAssemblies;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="handlerAssemblies"> the assemblies which containg handler, thos will be register to container</param>
         public ServiceAntModule(params System.Reflection.Assembly[] handlerAssemblies)
         {
             _handlerAssemblies = handlerAssemblies;
         }
 
+        /// <summary>
+        /// Excute this method ater you builded container
+        /// </summary>
+        /// <param name="container"></param>
         public static void RegisterHandlers(IComponentContext container)
         {
             foreach (var aHandlerAssembly in _handlerAssemblies)
@@ -63,7 +74,7 @@ namespace ServiceAnt.IocInstaller.Autofac
                     if (typeof(IRequestHandler).IsAssignableFrom(aInterface))
                         container.Resolve<IServiceBus>().AddRequestHandler(genericArgs[0], new ServiceAnt.Handler.IocHandlerFactory(container.Resolve<IocResolver>(), aHandlerType, genericArgs[0]));
                     else
-                        container.Resolve<IServiceBus>().AddSubScription(genericArgs[0], new ServiceAnt.Handler.IocHandlerFactory(container.Resolve<IocResolver>(), aHandlerType, genericArgs[0]));
+                        container.Resolve<IServiceBus>().AddSubscription(genericArgs[0], new ServiceAnt.Handler.IocHandlerFactory(container.Resolve<IocResolver>(), aHandlerType, genericArgs[0]));
                 }
             }
         }

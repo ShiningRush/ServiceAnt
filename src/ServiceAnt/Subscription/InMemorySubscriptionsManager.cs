@@ -9,49 +9,90 @@ using System.Threading.Tasks;
 
 namespace ServiceAnt.Subscription
 {
+    /// <summary>
+    /// InMemorySubscriptionsManager
+    /// </summary>
     public class InMemorySubscriptionsManager : ISubscriptionManager
     {
         private readonly ConcurrentDictionary<string, List<IHandlerFactory>> _handlerFactories;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public InMemorySubscriptionsManager()
         {
             _handlerFactories = new ConcurrentDictionary<string, List<IHandlerFactory>>();
         }
 
-        public void AddDynamicSubScription(string eventName, Func<dynamic, Task> action)
+        /// <summary>
+        /// Add Subscription for event by delegate with dynamic parameter
+        /// </summary>
+        /// <param name="eventName">the name of event(the class name of event type)</param>
+        /// <param name="action">Handler delegate</param>
+        public void AddDynamicSubscription(string eventName, Func<dynamic, Task> action)
         {
             var eventHandler = new ActionEventHandler(action);
 
             DoAddSubscription(new SingletonHandlerFactory(eventHandler), eventName: eventName);
         }
 
-        public void AddSubScription(Type eventType, IHandlerFactory factory)
+        /// <summary>
+        /// Add Subscription for event by factory
+        /// </summary>
+        /// <param name="eventType">The type of event must inherit TransportTray</param>
+        /// <param name="factory">The factory of handler</param>
+        public void AddSubscription(Type eventType, IHandlerFactory factory)
         {
             DoAddSubscription(factory, eventType);
         }
 
-        public void AddSubScription<TEvent>(Func<TEvent, Task> action) where TEvent : TransportTray
+        /// <summary>
+        /// Add Subscription for event by delegate
+        /// </summary>
+        /// <typeparam name="TEvent">The event must inherit TransportTray</typeparam>
+        /// <param name="action">Handler delegate</param>
+        public void AddSubscription<TEvent>(Func<TEvent, Task> action) where TEvent : TransportTray
         {
             var eventHandler = new ActionEventHandler<TEvent>(action);
 
-            AddSubScription<TEvent>(new SingletonHandlerFactory(eventHandler, typeof(TEvent)));
+            AddSubscription<TEvent>(new SingletonHandlerFactory(eventHandler, typeof(TEvent)));
         }
 
-        public void AddSubScription<TEvent>(IHandlerFactory factory) where TEvent : TransportTray
+        /// <summary>
+        /// Add Subscription for event by factory
+        /// </summary>
+        /// <typeparam name="TEvent">The event must inherit TransportTray </typeparam>
+        /// <param name="factory"></param>
+        public void AddSubscription<TEvent>(IHandlerFactory factory) where TEvent : TransportTray
         {
             DoAddSubscription(factory, typeof(TEvent));
         }
 
+        /// <summary>
+        /// Get all factory of handler by evetname
+        /// </summary>
+        /// <param name="eventName"></param>
+        /// <returns></returns>
         public List<IHandlerFactory> GetHandlerFactoriesForEvent(string eventName)
         {
             return GetOrCreateHandlerFactories(eventName);
         }
 
+        /// <summary>
+        /// Get all factory of handler by event object
+        /// </summary>
+        /// <param name="event"></param>
+        /// <returns></returns>
         public List<IHandlerFactory> GetHandlerFactoriesForEvent(TransportTray @event)
         {
             return GetOrCreateHandlerFactories(GetEventName(@event.GetType()));
         }
 
+        /// <summary>
+        /// Remove subscription from servicebus
+        /// </summary>
+        /// <param name="eventName">the name of event(the class name of event type)</param>
+        /// <param name="action">Handler delegate</param>
         public void RemoveDynamicSubscription(string eventName, Func<dynamic, Task> action)
         {
             GetOrCreateHandlerFactories(eventName)
@@ -76,6 +117,11 @@ namespace ServiceAnt.Subscription
                 });
         }
 
+        /// <summary>
+        /// Remove subscription from servicebus
+        /// </summary>
+        /// <typeparam name="TEvent">The event must inherit TransportTray</typeparam>
+        /// <param name="action">Handler delegate</param>
         public void RemoveSubscription<TEvent>(Func<TEvent, Task> action) where TEvent : TransportTray
         {
             GetOrCreateHandlerFactories(typeof(TEvent).Name)
@@ -124,6 +170,11 @@ namespace ServiceAnt.Subscription
 
         }
 
+        /// <summary>
+        /// Get event name by event type
+        /// </summary>
+        /// <param name="aType"></param>
+        /// <returns></returns>
         public string GetEventName(Type aType)
         {
             if (aType.IsGenericType)

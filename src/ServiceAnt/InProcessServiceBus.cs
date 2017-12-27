@@ -35,25 +35,25 @@ namespace ServiceAnt
 
         #region Pub/Sub
 
-        public void AddDynamicSubScription(string eventName, Func<dynamic, Task> action)
+        public void AddDynamicSubscription(string eventName, Func<dynamic, Task> action)
         {
-            _subcriptionManager.AddDynamicSubScription(eventName, action);
+            _subcriptionManager.AddDynamicSubscription(eventName, action);
         }
 
 
-        public void AddSubScription(Type eventType, IHandlerFactory factory)
+        public void AddSubscription(Type eventType, IHandlerFactory factory)
         {
-            _subcriptionManager.AddSubScription(eventType, factory);
+            _subcriptionManager.AddSubscription(eventType, factory);
         }
 
-        public void AddSubScription<TEvent>(Func<TEvent, Task> action) where TEvent : TransportTray
+        public void AddSubscription<TEvent>(Func<TEvent, Task> action) where TEvent : TransportTray
         {
-            _subcriptionManager.AddSubScription<TEvent>(action);
+            _subcriptionManager.AddSubscription<TEvent>(action);
         }
 
-        public void AddSubScription<TEvent>(IHandlerFactory factory) where TEvent : TransportTray
+        public void AddSubscription<TEvent>(IHandlerFactory factory) where TEvent : TransportTray
         {
-            _subcriptionManager.AddSubScription<TEvent>(factory);
+            _subcriptionManager.AddSubscription<TEvent>(factory);
         }
 
         public void RemoveDynamicSubscription(string eventName, Func<dynamic, Task> action)
