@@ -4,7 +4,8 @@
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/ShiningRush/ServiceAnt/blob/master/LICENSE)
   
 <br/>
-[中文介绍请点击这里](https://github.com/ShiningRush/PdfComponentComparition/blob/master/README.zh-cn.md)
+
+[中文介绍请点击这里](https://github.com/ShiningRush/PdfComponentComparition/blob/master/README.zh-cn.md)  
 <br/>
 ServiceAnt 的定位是一个轻量级，开箱即用的服务总线，好吧，虽然它现在还没有实现真正意义上的服务总线，但正朝着那个方向发展。
 目前它只能运行于进程内，以后会推出分布式的实现。现在你可以把它当作一个解耦模块的中介者（类似于 Mediator）  
