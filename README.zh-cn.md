@@ -1,8 +1,17 @@
 # ServiceAnt
 
-ServiceAnt 的定位是服务总线，好吧，虽然它现在还没有实现真正意义上的服务总线，但正朝着那个方向发展。  
-目前它只能运行于进程内，以后会推出分布式的实现。现在你可以把它当作一个解耦模块的中介者（类似于 Mediator）
+[![Build status](https://ci.appveyor.com/api/projects/status/github/ShiningRush/serviceant?branch=master&svg=true)](https://ci.appveyor.com/project/ShiningRush/serviceant)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/ShiningRush/ServiceAnt/blob/master/LICENSE)
+  
+<br/>
 
+[中文介绍请点击这里](https://github.com/ShiningRush/PdfComponentComparition/blob/master/README.zh-cn.md)  
+<br/>
+ServiceAnt 的定位是一个轻量级，开箱即用的服务总线，好吧，虽然它现在还没有实现真正意义上的服务总线，但正朝着那个方向发展。
+目前它只能运行于进程内，以后会推出分布式的实现。现在你可以把它当作一个解耦模块的中介者（类似于 Mediator）  
+<br/>
+[了解ServiceAnt为什么而出现](#Detail)
+  
 ## Get Started
 
 ## 安装
@@ -184,3 +193,30 @@ ServiceAnt 可以开箱即用，但我相信很多使用者都会希望使用 Io
             newContainer.Install(new ServiceAntInstaller(System.Reflection.Assembly.GetExecutingAssembly()));
 
 在进行完 Ioc 集成后，你就可以通过 Ioc 的方式注册处理函数了。
+
+<h2 id="Detail">为什么会有ServiceAnt</h2>
+
+### 动机
+
+起因是这样的，我们团队在开发一个企业应用时采用了DDD，然后将我们的业务逻辑拆分为了复数个限界上下文，每个上下文低耦合高内聚的.  
+但无论再怎么低耦合，总会有一些高层次的交互，这些被称为“边界点”，通常在分布式部署中，我们会选择Webapi 或者 WebServie 等远程通信手段来进行交互  
+遗憾的是，我们的应用是线下的，并发量也并不需要到集群这样重量级的解决方案，所以我们使用Abp的插件加载机制为基础设施,  
+将每个上下文都实现成了一个个独立的项目模块.  
+  
+项目初期我们使用 Abp 提供的事件总线作为模块之间交互的方式, 但它有一个很不好的地方是, 它的事件引用必须是显式的原对象引用。    
+这也就意味着，你为了在A模块中使用B模块发布的事件，你必须让两个上下文都引用这个事件对象，这显然加深了模块间的耦合。  
+  
+在参考了Abp, Medirator, NServerBus以及微软的示例项目 EShopContainer 我决定自己实现一个服务总线, 它要具有以下特点：
+* 支持隐式注册处理函数
+* 支持Pub/Sub模式
+* 事件的接收与发布对象是非引用的(指你可以在不同模块间建立各自的事件类，只需要保证它们名称与结构相同即可)
+
+  
+所以ServiceAnt出现了, ServiceAnt 的初期目标是一个进程内的消息中介者, 后期有时间会开发分布式的版本。
+
+### 与其他类似框架的不同之处
+
+`Mediator`: Mediator 只支持Ioc来注册处理函数, 并且不支持委托注册  
+`NServerBus`: NServerBus 是一个偏重的框架, 而且它的定位就是解决分布式架构中的通信问题，并没有进程内的实现版本(它的Learning Transport可以看作进程内的实现，但官方并不推荐使用)  
+`Abp`: 在上面已经讨论过了, 而且它也不支持 Pub/Sub  
+`EShopContainer`: 好吧，这只是微软的实例项目，它其中的事件总线是分布式的，有两个实现，一个基于RabbitMQ一个基于AzureMQ, 它也没有作为框架发布到Nuget上  
