@@ -16,7 +16,9 @@ ServiceAnt 的定位是一个轻量级，开箱即用的服务总线，好吧，
 
 ## 安装
 
-`Install-Package ServiceAnt`
+```
+Install-Package ServiceAnt
+```
 
 ## 使用
 
@@ -29,7 +31,7 @@ ServiceAnt 有两种工作模式分别是:
 
 该模式没有什么特别，完全遵从于观察者模式，当按这种方式使用时，你可以把 ServiceAnt 看作事件总线。  
 示例代码片段如下：
-  
+```c#
         static void Main(string[] args)
         {
             var serviceBus = InProcessServiceBus.Default;
@@ -58,12 +60,13 @@ ServiceAnt 有两种工作模式分别是:
         {
             public string EventValue { get; set; }
         }
-  
+```
+
 ### Req/Resp
 
 该模式在正常的请求响应模式下追加了管道处理机制，有点类似于 `1Owin 的中间件` 与 `WebApi 的 MessageHandler` 它们的工作方式，不同的地方在于它是单向管道，而后者是双向的.  
 示例代码片段如下:
-
+```c#
         static void Main(string[] args)
         {
             var serviceBus = InProcessServiceBus.Default;
@@ -105,7 +108,12 @@ ServiceAnt 有两种工作模式分别是:
         {
             public string RequestParameter { get; set; }
         }
-  
+```
+
+> ### 提示
+> 无论你使用 Pub/Sub 或 Req/Resp 模式，你的发起源对象都必须要继承于 TransportTray, 这是为了以后的拓展性以及规范性考虑, 这个基类中包含了一些基础
+> 属性便于记录及区分它们.
+
 ## 注册处理函数
 
 ServiceAnt 支持以下两种方式注册处理函数
@@ -125,7 +133,7 @@ ServiceAnt 支持以下两种方式注册处理函数
 在使用Ioc注册之前，首先我们需要把 ServiceAnt 集成到你的 Ioc环境中，请参考 [Ioc集成](#IocIntegration) 来将 ServiceAnt 集成到你的 Ioc当中。  
 
 注册事件处理函数:
-
+```c#
         public class IocEventHandler : IEventHandler<TestTray>
         {
             public Task HandleAsync(TestTray param)
@@ -135,9 +143,9 @@ ServiceAnt 支持以下两种方式注册处理函数
                 return Task.Delay(1);
             }
         }
-  
+```
 注册请求处理函数:
-
+```c#
         public class IocRequestHandler : IRequestHandler<TestTray>
         {
             public Task HandleAsync(TestTray param, IRequestHandlerContext handlerContext)
@@ -146,7 +154,7 @@ ServiceAnt 支持以下两种方式注册处理函数
                 return Task.Delay(1);
             }
         }
-
+```
 <h2 id="IocIntegration"> Ioc 集成 </h2>
 
 ServiceAnt 可以开箱即用，但我相信很多使用者都会希望使用 Ioc 来注册自己的事件处理函数，这样做除了便于事件处理函数的单元测试外，同时也提高了可修改性。  
@@ -161,11 +169,13 @@ ServiceAnt 可以开箱即用，但我相信很多使用者都会希望使用 Io
 
 首先你需要安装 ServiceAnt 的 Autofac 集成:
 
-`Install-Package ServiceAnt.IocInstaller.Autofac`
+```
+Install-Package ServiceAnt.IocInstaller.Autofac
+```
 
 然后在你的初始化代码中调用：
 
-
+```c#
             // replace newContainer with your project container builder
             var newContainerBuilder = new ContainerBuilder();
             
@@ -175,22 +185,27 @@ ServiceAnt 可以开箱即用，但我相信很多使用者都会希望使用 Io
             // after builded container, you should excute ServiceAntModule.RegisterHandlers to integrate ioc
             var autofacContainer = newContainerBuilder.Build();
             ServiceAntModule.RegisterHandlers(autofacContainer);
-  
+```
+
 好的，你现在可以在你的服务中注入 ServiceAnt 了。
 
 ### Castle
 
 类似于 Autofac , 先安装 Castle 的 Installer:
 
-`Install-Package ServiceAnt.IocInstaller.Castle`
+```
+Install-Package ServiceAnt.IocInstaller.Castle
+```
 
 然后在你的初始化代码中调用：
 
+```c#
             // replace newContainer with your project container
             var newContainer = new WindsorContainer();
             
             // input all of your assemblies containg handler, installer will automatically register it to container
             newContainer.Install(new ServiceAntInstaller(System.Reflection.Assembly.GetExecutingAssembly()));
+```
 
 在进行完 Ioc 集成后，你就可以通过 Ioc 的方式注册处理函数了。
 
