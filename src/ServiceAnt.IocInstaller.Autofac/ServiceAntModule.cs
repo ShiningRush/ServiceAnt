@@ -44,6 +44,10 @@ namespace ServiceAnt.IocInstaller.Autofac
             }
         }
 
+        /// <summary>
+        /// Intall dependenies and register handler function
+        /// </summary>
+        /// <param name="builder"></param>
         protected override void Load(ContainerBuilder builder)
         {
             var serviceBus = InProcessServiceBus.Default;

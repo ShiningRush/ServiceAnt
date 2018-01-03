@@ -32,6 +32,11 @@ namespace ServiceAnt.IocInstaller.Castle
             _handlerAssemblies = handlerAssemblies;
         }
 
+        /// <summary>
+        /// Intall dependenies and register handler function
+        /// </summary>
+        /// <param name="container"></param>
+        /// <param name="store"></param>
         public void Install(IWindsorContainer container, IConfigurationStore store)
         {
             _container = container;

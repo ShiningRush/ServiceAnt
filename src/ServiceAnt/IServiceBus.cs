@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace ServiceAnt
 {
+    /// <summary>
+    /// It used to publish event or send a request
+    /// </summary>
     public interface IServiceBus : IAddSubscription, IAddRequestHandler
     {
         /// <summary>

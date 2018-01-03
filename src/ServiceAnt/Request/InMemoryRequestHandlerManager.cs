@@ -8,15 +8,26 @@ using System.Threading.Tasks;
 
 namespace ServiceAnt.Handler.Request
 {
+    /// <summary>
+    /// It save the handlers in memory
+    /// </summary>
     public class InMemoryRequestHandlerManager : IRequestHandlerManager
     {
         private readonly ConcurrentDictionary<string, List<IHandlerFactory>> _handlerFactories;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public InMemoryRequestHandlerManager()
         {
             _handlerFactories = new ConcurrentDictionary<string, List<IHandlerFactory>>();
         }
 
+        /// <summary>
+        /// Register dynamic handler with delegate
+        /// </summary>
+        /// <param name="eventName"></param>
+        /// <param name="action"></param>
         public void AddDynamicRequestHandler(string eventName, Func<dynamic, IRequestHandlerContext, Task> action)
         {
             var eventHandler = new ActionRequestHandler(action);
@@ -24,11 +35,21 @@ namespace ServiceAnt.Handler.Request
             DoAddRequestHandler(new SingletonHandlerFactory(eventHandler), eventName: eventName);
         }
 
+        /// <summary>
+        /// Register handler with handler factory
+        /// </summary>
+        /// <param name="eventType"></param>
+        /// <param name="factory"></param>
         public void AddRequestHandler(Type eventType, IHandlerFactory factory)
         {
             DoAddRequestHandler(factory, eventType);
         }
 
+        /// <summary>
+        /// Register handler with delegate
+        /// </summary>
+        /// <typeparam name="TEvent"></typeparam>
+        /// <param name="action"></param>
         public void AddRequestHandler<TEvent>(Func<TEvent, IRequestHandlerContext, Task> action) where TEvent : TransportTray
         {
             var eventHandler = new ActionRequestHandler<TEvent>(action);
@@ -36,21 +57,41 @@ namespace ServiceAnt.Handler.Request
             AddRequestHandler<TEvent>(new SingletonHandlerFactory(eventHandler, typeof(TEvent)));
         }
 
+        /// <summary>
+        /// Register handler with handler factory
+        /// </summary>
+        /// <typeparam name="TEvent"></typeparam>
+        /// <param name="factory"></param>
         public void AddRequestHandler<TEvent>(IHandlerFactory factory) where TEvent : TransportTray
         {
             DoAddRequestHandler(factory, typeof(TEvent));
         }
 
+        /// <summary>
+        /// Get the all handler factory of a request
+        /// </summary>
+        /// <param name="request">request object</param>
+        /// <returns></returns>
         public List<IHandlerFactory> GetHandlerFactoriesForRequest(TransportTray request)
         {
             return GetOrCreateHandlerFactories(GetRequestName(request.GetType()));
         }
+        /// <summary>
+        /// Get the all handler factory of a request
+        /// </summary>
+        /// <param name="requestName">request name</param>
+        /// <returns></returns>
 
         public List<IHandlerFactory> GetHandlerFactoriesForRequest(string requestName)
         {
             return GetOrCreateHandlerFactories(requestName);
         }
 
+        /// <summary>
+        /// Get the request name by TransportTray type
+        /// </summary>
+        /// <param name="aType">the class inherited TransportTray</param>
+        /// <returns></returns>
         public string GetRequestName(Type aType)
         {
             if (aType.IsGenericType)
@@ -63,6 +104,11 @@ namespace ServiceAnt.Handler.Request
             }
         }
 
+        /// <summary>
+        /// Register dynamic handler with delegate
+        /// </summary>
+        /// <param name="eventName"></param>
+        /// <param name="action"></param>
         public void RemoveDynamicRequestHandler(string eventName, Func<dynamic, IRequestHandlerContext, Task> action)
         {
             GetOrCreateHandlerFactories(eventName)
@@ -87,6 +133,11 @@ namespace ServiceAnt.Handler.Request
                 });
         }
 
+        /// <summary>
+        /// Remove handler by event type
+        /// </summary>
+        /// <typeparam name="TEvent"></typeparam>
+        /// <param name="action"></param>
         public void RemoveRequestHandler<TEvent>(Func<TEvent, IRequestHandlerContext, Task> action) where TEvent : TransportTray
         {
             GetOrCreateHandlerFactories(typeof(TEvent).Name)

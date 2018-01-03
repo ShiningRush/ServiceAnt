@@ -15,6 +15,10 @@ namespace ServiceAnt.IocInstaller.Autofac
     {
         private readonly IComponentContext _componentContext;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="componentContext"></param>
         public IocResolver(IComponentContext componentContext)
         {
             _componentContext = componentContext;
