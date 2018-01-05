@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ServiceAnt.Handler
 {
-    public class TransportTray
+    public abstract class TransportTray
     {
         public TransportTray()
         {
@@ -18,7 +18,7 @@ namespace ServiceAnt.Handler
         public DateTime CreationDate { get; }
     }
 
-    public class TransportTray<TEntity> : TransportTray
+    public abstract class TransportTray<TEntity> : TransportTray
     {
         public TEntity TransportEntity { get; set; }
 

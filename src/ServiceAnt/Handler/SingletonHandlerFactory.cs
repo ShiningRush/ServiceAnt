@@ -2,7 +2,7 @@
 
 namespace ServiceAnt.Handler
 {
-    public class SingletonHandlerFactory : IHandlerFactory
+    internal class SingletonHandlerFactory : IHandlerFactory
     {
         private IHandler _instance;
         private Type _localEventType;

@@ -10,8 +10,13 @@
     <ProjectReference Include="..\..\src\ServiceAnt.IocInstaller.Castle\ServiceAnt.IocInstaller.Castle.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
+    <PackageReference Include="Castle.Windsor" Version="3.3.0" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.0' ">
     <PackageReference Include="Castle.Windsor" Version="4.1.0" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="MSTest.TestAdapter" Version="1.1.18" />
     <PackageReference Include="MSTest.TestFramework" Version="1.1.18" />
   </ItemGroup>
