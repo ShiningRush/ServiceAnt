@@ -7,6 +7,33 @@ using System.Threading.Tasks;
 namespace ServiceAnt
 {
     /// <summary>
+    /// BusMessageLevel
+    /// </summary>
+    public enum LogLevel
+    {
+        /// <summary>
+        /// Debug
+        /// </summary>
+        DEBUG,
+        /// <summary>
+        /// INFO
+        /// </summary>
+        INFO,
+        /// <summary>
+        /// Error
+        /// </summary>
+        ERROR
+    }
+
+    /// <summary>
+    /// This delegate used to handle bus message
+    /// </summary>
+    /// <param name="msgLevel">message level</param>
+    /// <param name="message">message</param>
+    /// <param name="ex">if happended exception, it will return it</param>
+    public delegate void LogBusMessage(LogLevel msgLevel, string message, Exception ex);
+
+    /// <summary>
     /// It used to publish event or send a request
     /// </summary>
     public interface IServiceBus : IAddSubscription, IAddRequestHandler
@@ -14,7 +41,7 @@ namespace ServiceAnt
         /// <summary>
         /// Use to log message of bus
         /// </summary>
-        event Action<string, string, Exception> OnLogBusMessage;
+        event LogBusMessage OnLogBusMessage;
 
         /// <summary>
         /// Publish a event

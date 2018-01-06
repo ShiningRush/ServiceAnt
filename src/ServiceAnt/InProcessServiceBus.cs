@@ -22,7 +22,7 @@ namespace ServiceAnt
         /// <summary>
         /// Use to log message of bus
         /// </summary>
-        public event Action<string, string, Exception> OnLogBusMessage;
+        public event LogBusMessage OnLogBusMessage;
 
         private static Lazy<InProcessServiceBus> _defaultInstance = new Lazy<InProcessServiceBus>();
 
@@ -163,7 +163,7 @@ namespace ServiceAnt
                 }
                 catch (Exception ex)
                 {
-                    LogMessage( "error", "There has raised a error when publishing event.", ex);
+                    LogMessage( LogLevel.ERROR, "There has raised a error when publishing event.", ex);
                 }
             }
         }
@@ -294,7 +294,7 @@ namespace ServiceAnt
                 }
                 catch (Exception ex)
                 {
-                    LogMessage("error", "There has raised a error when send request.", ex);
+                    LogMessage(LogLevel.ERROR, "There has raised a error when send request.", ex);
                 }
             }
 
@@ -303,7 +303,7 @@ namespace ServiceAnt
 
 #endregion
 
-        private void LogMessage(string type, string value, Exception ex)
+        private void LogMessage(LogLevel type, string value, Exception ex)
         {
             OnLogBusMessage?.Invoke(type, value, ex);
         }
