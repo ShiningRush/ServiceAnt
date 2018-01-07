@@ -63,7 +63,11 @@ ServiceAnt 有两种工作模式分别是:
 
 ### Req/Resp
 
-该模式在正常的请求响应模式下追加了管道处理机制，有点类似于 `1Owin 的中间件` 与 `WebApi 的 MessageHandler` 它们的工作方式，不同的地方在于它是单向管道，而后者是双向的.  
+该模式在正常的请求响应模式下追加了管道处理机制，有点类似于 `Owin 的中间件` 与 `WebApi 的 MessageHandler` 它们的工作方式，不同的地方在于它是单向流动的，而后者是双向的.  
+
+> ### 管道的处理顺序
+> 管道处理顺序是按照的注册的顺序来执行的，暂时没有提供控制执行顺序的配置.  
+> 在大多数情况下，我们只推荐为 Req/Resp 注册单个注册函数.
 
 示例代码片段如下:
 ```c#
@@ -192,9 +196,16 @@ Install-Package ServiceAnt.IocInstaller.Autofac
             ServiceAntModule.RegisterHandlers(autofacContainer);
 ```
 
-好的，你现在可以在你的服务中注入 ServiceAnt 了。
+好的，你现在可以在你的Ioc环境中使用 ServiceAnt 了.  
 
-### Castle
+> ### 关于处理函数(Handler)的自动注册
+> 需要注意一下 `ServiceAntModule` 的构造函数可以接受多个程序集, 这些程序应该包含你的处理函数(Handler)所在的程序集,  
+> 安装器会帮你自动把处理函数(Handler)注册到Ioc的容器中, 同时也会自动添加到 `IServiceBus` 中.  
+> 
+> 在一些复杂的模块化系统可能在初始化模块中找出所有处理函数的程序集会比较麻烦, 但遗憾的是 `Autofac` 不象 `Castle.Windsor` 一样支持拓展的钩子,
+> 所以没办法在注册时依赖时自动注册到 `IServiceBus` 中, 目前我们正在研究是否有更合适的解决方案.  
+
+### Castle.Windsor
 
 类似于 Autofac , 先安装 Castle 的 Installer:
 
@@ -212,7 +223,36 @@ Install-Package ServiceAnt.IocInstaller.Castle
             newContainer.Install(new ServiceAntInstaller(System.Reflection.Assembly.GetExecutingAssembly()));
 ```
 
-在进行完 Ioc 集成后，你就可以通过 Ioc 的方式注册处理函数了。
+Castle 的安装器也支持在构造函数中放入处理函数(Handler)所在的程序集, 它会自动帮你注册到 Ioc 容器和 `IServiceBus` 中,  
+但和 Autofac 有一点很大不同的是, Castle的容器支持一些注册时的钩子, 它可以让安装器在注册依赖时自动帮你把处理函数(Handler)注册到`IServiceBus`.  
+这样一来, 如果你的安装器是在启动模块中安装的, 那么你可以不用关心你的处理函数处于哪个程序集了, 主要你在任意模块把它注册到你 Ioc 的容器中,  
+ServiceAnt都会感知到, 并且自动添加它.  
+
+请看下面的示例代码.  
+初始化模块:  
+```c#
+            // replace newContainer with your project container
+            var newContainer = new WindsorContainer();
+            
+            // you dont need to input assmblies which contains handler function
+            newContainer.Install(new ServiceAntInstaller(System.Reflection.Assembly.GetExecutingAssembly()));
+```
+
+模块A(在初始化模块执行后):  
+```c#
+            // register your component to container, hook function will automatically add it to IServiceBus
+            _container.Register(Component.For<IEventHandler>().ImplementedBy<SomeConcreteEventHandler>());
+```
+
+以上的代码可以即可将事件处理函数以Ioc的方式注册到 `IServiceBus` 中.
+
+## 异常处理与日志
+
+ServiceAnt 在触发事件的过程中,可能会产生某些异常,正常情况下这些异常会在内部捕捉到, 而如何处理,  
+取决于你是否配置了日志的记录委托.  
+
+你如果订阅了位于 `IServiceBus` 中的 `OnLogBusMessage` 事件, 那么这些异常消息都会通过该事件发出.  
+如果没有, ServiceAnt 则会直接把异常上抛.
 
 <h2 id="Detail">为什么会有ServiceAnt</h2>
 
@@ -236,11 +276,12 @@ Install-Package ServiceAnt.IocInstaller.Castle
 
 ### 与其他类似框架的不同之处
 
-`Mediator`: Mediator 只支持Ioc来注册处理函数, 并且不支持委托注册  
+这里只作一些不同之处的分析, 并不代表优劣, 请结合自己项目的情况来合理选择.
 
-`NServerBus`: NServerBus 是一个偏重的框架, 而且它的定位就是解决分布式架构中的通信问题，并没有进程内的实现版本(它的Learning Transport可以看作进程内的实现，但官方并不推荐使用)  
+`Mediator`: Mediator 只支持Ioc来注册处理函数, 并且不支持委托注册. 另外它的定位是进程内使用的基础设施, 不适用于分布式系统, 在`eshopcontainer`中,它被作为单个微服务下实现 CQRS 的基础设施.
 
-`Abp`: 在上面已经讨论过了, 而且它也不支持 Pub/Sub  
+`NServerBus`: NServerBus 是一个偏重的框架, 而且它的定位就是解决分布式架构中的通信问题，并没有进程内的实现版本(它的Learning Transport可以看作进程内的实现，但官方并不推荐使用), 它更适用于分布式的复杂系统来说.
 
-`EShopContainer`: 好吧，这只是微软的实例项目，它其中的事件总线是分布式的，有两个实现，一个基于RabbitMQ一个基于AzureMQ, 它也没有作为框架发布到Nuget上  
+`Abp`: 在上面已经讨论过了, 另外它也不支持 Pub/Sub.如果你的项目不采用多模块的机制, 或者不介意模块间的相互引用, Abp自带的事件还是不错的.
 
+`EShopContainer`: 这只是微软的示例项目，它其中的事件总线是分布式的，有两个实现，一个基于RabbitMQ一个基于AzureMQ, 它也没有作为框架发布到Nuget上.
