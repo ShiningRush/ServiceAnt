@@ -11,7 +11,7 @@ namespace ServiceAnt.Request.Handler
     /// The container of request handler registing with delegate
     /// </summary>
     /// <typeparam name="TRequest"></typeparam>
-    public class ActionRequestHandler<TRequest> : IRequestHandler<TRequest> where TRequest : TransportTray
+    public class ActionRequestHandler<TRequest> : IRequestHandler<TRequest> where TRequest : ITrigger
     {
         private Func<TRequest, IRequestHandlerContext, Task> _action;
 

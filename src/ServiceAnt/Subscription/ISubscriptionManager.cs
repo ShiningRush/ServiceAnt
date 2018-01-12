@@ -24,7 +24,7 @@ namespace ServiceAnt.Subscription
         /// </summary>
         /// <param name="event"></param>
         /// <returns></returns>
-        List<IHandlerFactory> GetHandlerFactoriesForEvent(TransportTray @event);
+        List<IHandlerFactory> GetHandlerFactoriesForEvent(ITrigger @event);
 
         /// <summary>
         /// Get event name by event type

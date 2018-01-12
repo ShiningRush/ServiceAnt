@@ -14,21 +14,22 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
     [TestClass]
     public class InProcessServiceBus_Test
     {
-        private class TestEventData : TransportTray
+        private class TestEventData : ITrigger
         {
             public string Msg { get; set; }
         }
 
-        private class TestEventDataWithParam : TransportTray
+        private class TestEventDataWithParam : ITrigger
         {
             public TestEventDataWithParam(string Msg) { }
 
             public string Msg { get; set; }
         }
 
-        private class TestEventDataT<T> : TransportTray<T>
+        private class TestEventDataT<T> : Trigger<T>
         {
-            public TestEventDataT(T test) : base(test) { }
+            public TestEventDataT(T test) : base(test)
+            { }
 
             public string Msg { get; set; }
         }
@@ -431,14 +432,14 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
             {
                 return Task.Run(() =>
                 {
-                    context.Response = eventData.TransportEntity.Msg + eventData.Msg;
+                    context.Response = eventData.Dto.Msg + eventData.Msg;
                 });
             });
 
             var testEventData = new TestEventDataT<TestEventData>(new TestEventData() { Msg = "non" }) { Msg = "success" };
             var result = eventBus.Send<string>(testEventData);
 
-            Assert.AreEqual(testEventData.TransportEntity.Msg + testEventData.Msg, result);
+            Assert.AreEqual(testEventData.Dto.Msg + testEventData.Msg, result);
         }
 
         [TestMethod]

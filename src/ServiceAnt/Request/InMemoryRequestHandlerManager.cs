@@ -50,7 +50,7 @@ namespace ServiceAnt.Handler.Request
         /// </summary>
         /// <typeparam name="TEvent"></typeparam>
         /// <param name="action"></param>
-        public void AddRequestHandler<TEvent>(Func<TEvent, IRequestHandlerContext, Task> action) where TEvent : TransportTray
+        public void AddRequestHandler<TEvent>(Func<TEvent, IRequestHandlerContext, Task> action) where TEvent : ITrigger
         {
             var eventHandler = new ActionRequestHandler<TEvent>(action);
 
@@ -62,7 +62,7 @@ namespace ServiceAnt.Handler.Request
         /// </summary>
         /// <typeparam name="TEvent"></typeparam>
         /// <param name="factory"></param>
-        public void AddRequestHandler<TEvent>(IHandlerFactory factory) where TEvent : TransportTray
+        public void AddRequestHandler<TEvent>(IHandlerFactory factory) where TEvent : ITrigger
         {
             DoAddRequestHandler(factory, typeof(TEvent));
         }
@@ -72,7 +72,7 @@ namespace ServiceAnt.Handler.Request
         /// </summary>
         /// <param name="request">request object</param>
         /// <returns></returns>
-        public List<IHandlerFactory> GetHandlerFactoriesForRequest(TransportTray request)
+        public List<IHandlerFactory> GetHandlerFactoriesForRequest(ITrigger request)
         {
             return GetOrCreateHandlerFactories(GetRequestName(request.GetType()));
         }
@@ -138,7 +138,7 @@ namespace ServiceAnt.Handler.Request
         /// </summary>
         /// <typeparam name="TEvent"></typeparam>
         /// <param name="action"></param>
-        public void RemoveRequestHandler<TEvent>(Func<TEvent, IRequestHandlerContext, Task> action) where TEvent : TransportTray
+        public void RemoveRequestHandler<TEvent>(Func<TEvent, IRequestHandlerContext, Task> action) where TEvent : ITrigger
         {
             GetOrCreateHandlerFactories(typeof(TEvent).Name)
                 .Locking(factories =>

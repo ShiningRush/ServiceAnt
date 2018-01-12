@@ -23,7 +23,7 @@ namespace ServiceAnt.Handler.Request
         /// </summary>
         /// <param name="request">request object</param>
         /// <returns></returns>
-        List<IHandlerFactory> GetHandlerFactoriesForRequest(TransportTray @request);
+        List<IHandlerFactory> GetHandlerFactoriesForRequest(ITrigger @request);
 
         /// <summary>
         /// Get the request name by TransportTray type

@@ -48,7 +48,7 @@ namespace ServiceAnt
         /// </summary>
         /// <param name="event"></param>
         /// <returns></returns>
-        Task Publish(TransportTray @event);
+        Task Publish(ITrigger @event);
 
         /// <summary>
         /// Send a request sync
@@ -56,7 +56,7 @@ namespace ServiceAnt
         /// <typeparam name="T"></typeparam>
         /// <param name="event"></param>
         /// <returns></returns>
-        T Send<T>(TransportTray @event);
+        T Send<T>(ITrigger @event);
 
         /// <summary>
         /// Send a request async
@@ -64,6 +64,6 @@ namespace ServiceAnt
         /// <typeparam name="T"></typeparam>
         /// <param name="event"></param>
         /// <returns></returns>
-        Task<T> SendAsync<T>(TransportTray @event);
+        Task<T> SendAsync<T>(ITrigger @event);
     }
 }

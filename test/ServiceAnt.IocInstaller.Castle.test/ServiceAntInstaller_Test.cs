@@ -8,6 +8,7 @@ using ServiceAnt.Handler;
 using System.Threading.Tasks;
 using Castle.MicroKernel.Registration;
 using ServiceAnt.Request.Handler;
+using ServiceAnt.Subscription.Handler;
 
 namespace ServiceAnt.IocInstaller.Castle.Test
 {
@@ -30,7 +31,7 @@ namespace ServiceAnt.IocInstaller.Castle.Test
             var newContainer = new WindsorContainer();
             newContainer.Install(new ServiceAntInstaller(System.Reflection.Assembly.GetExecutingAssembly()));
 
-            await newContainer.Resolve<IServiceBus>().Publish(new TestTray() { Result = testValue });
+            await newContainer.Resolve<IServiceBus>().Publish(new TestTrigger() { Result = testValue });
 
             Assert.AreEqual(testValue, RESULT_CONTAINER);
         }
@@ -42,19 +43,19 @@ namespace ServiceAnt.IocInstaller.Castle.Test
             var newContainer = new WindsorContainer();
             newContainer.Install(new ServiceAntInstaller(System.Reflection.Assembly.GetExecutingAssembly()));
 
-            var result = await newContainer.Resolve<IServiceBus>().SendAsync<string>(new TestTray() { Result = testValue });
+            var result = await newContainer.Resolve<IServiceBus>().SendAsync<string>(new TestTrigger() { Result = testValue });
 
             Assert.AreEqual(testValue, result);
         }
 
-        public class TestTray : TransportTray
+        public class TestTrigger : ITrigger
         {
             public string Result { get; set; }
         }
 
-        public class IocEventHandler : IEventHandler<TestTray>
+        public class IocEventHandler : IEventHandler<TestTrigger>
         {
-            public Task HandleAsync(TestTray param)
+            public Task HandleAsync(TestTrigger param)
             {
                 RESULT_CONTAINER = param.Result;
 
@@ -62,9 +63,9 @@ namespace ServiceAnt.IocInstaller.Castle.Test
             }
         }
 
-        public class IocRequestHandler : IRequestHandler<TestTray>
+        public class IocRequestHandler : IRequestHandler<TestTrigger>
         {
-            public Task HandleAsync(TestTray param, IRequestHandlerContext handlerContext)
+            public Task HandleAsync(TestTrigger param, IRequestHandlerContext handlerContext)
             {
                 handlerContext.Response = param.Result;
                 return Task.Delay(1);

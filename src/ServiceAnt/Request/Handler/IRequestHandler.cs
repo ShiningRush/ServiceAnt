@@ -18,7 +18,7 @@ namespace ServiceAnt.Request.Handler
     /// The interface of handling request
     /// </summary>
     /// <typeparam name="TRequest">request parameter</typeparam>
-    public interface IRequestHandler<TRequest> : IRequestHandler where TRequest : TransportTray
+    public interface IRequestHandler<TRequest> : IRequestHandler where TRequest : ITrigger
     {
         /// <summary>
         /// Handle request async

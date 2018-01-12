@@ -6,26 +6,31 @@ using System.Threading.Tasks;
 
 namespace ServiceAnt.Handler
 {
-    public abstract class TransportTray
+    /// <summary>
+    /// It is used to trigger event or request
+    /// </summary>
+    public interface ITrigger
     {
-        public TransportTray()
-        {
-            Id = Guid.NewGuid();
-            CreationDate = DateTime.UtcNow;
-        }
-
-        public Guid Id { get; }
-        public DateTime CreationDate { get; }
     }
-
-    public abstract class TransportTray<TEntity> : TransportTray
+    
+    /// <summary>
+    /// It is used to trigger event or request
+    /// </summary>
+    /// <typeparam name="TDto"></typeparam>
+    public abstract class Trigger<TDto> : ITrigger
     {
-        public TEntity TransportEntity { get; set; }
+        /// <summary>
+        /// Dto
+        /// </summary>
+        public TDto Dto { get; set; }
 
-        public TransportTray(TEntity entity) : base()
+        /// <summary>
+        /// ctor
+        /// </summary>
+        /// <param name="inputDto"></param>
+        public Trigger(TDto inputDto)
         {
-            TransportEntity = entity;
+            Dto = inputDto;
         }
     }
-
 }

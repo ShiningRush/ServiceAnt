@@ -5,6 +5,7 @@ using ServiceAnt.Handler.Request;
 using ServiceAnt.Handler.Subscription.Handler;
 using ServiceAnt.Request.Handler;
 using ServiceAnt.Subscription;
+using ServiceAnt.Subscription.Handler;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -78,7 +79,7 @@ namespace ServiceAnt
         /// </summary>
         /// <typeparam name="TEvent">The event must inherit TransportTray</typeparam>
         /// <param name="action">Handler delegate</param>
-        public void AddSubscription<TEvent>(Func<TEvent, Task> action) where TEvent : TransportTray
+        public void AddSubscription<TEvent>(Func<TEvent, Task> action) where TEvent : ITrigger
         {
             _subcriptionManager.AddSubscription<TEvent>(action);
         }
@@ -88,7 +89,7 @@ namespace ServiceAnt
         /// </summary>
         /// <typeparam name="TEvent">The event must inherit TransportTray </typeparam>
         /// <param name="factory"></param>s
-        public void AddSubscription<TEvent>(IHandlerFactory factory) where TEvent : TransportTray
+        public void AddSubscription<TEvent>(IHandlerFactory factory) where TEvent : ITrigger
         {
             _subcriptionManager.AddSubscription<TEvent>(factory);
         }
@@ -109,7 +110,7 @@ namespace ServiceAnt
         /// </summary>
         /// <typeparam name="TEvent">The event must inherit TransportTray</typeparam>
         /// <param name="action">Handler delegate</param>
-        public void RemoveSubscription<TEvent>(Func<TEvent, Task> action) where TEvent : TransportTray
+        public void RemoveSubscription<TEvent>(Func<TEvent, Task> action) where TEvent : ITrigger
         {
             _subcriptionManager.RemoveSubscription<TEvent>(action);
         }
@@ -119,7 +120,7 @@ namespace ServiceAnt
         /// </summary>
         /// <param name="event"></param>
         /// <returns></returns>
-        public Task Publish(TransportTray @event)
+        public Task Publish(ITrigger @event)
         {
             var asyncTask = ProcessEvent(_subcriptionManager.GetEventName(@event.GetType()), JsonConvert.SerializeObject(@event));
             return asyncTask;
@@ -129,7 +130,7 @@ namespace ServiceAnt
         /// Publish a event sync
         /// </summary>
         /// <param name="event"></param>
-        public void PublishSync(TransportTray @event)
+        public void PublishSync(ITrigger @event)
         {
             var asyncTask = ProcessEvent(_subcriptionManager.GetEventName(@event.GetType()), JsonConvert.SerializeObject(@event));
             asyncTask.Wait();
@@ -188,7 +189,7 @@ namespace ServiceAnt
         /// <typeparam name="TEvent"></typeparam>
         /// <param name="factory"></param>
         public void AddRequestHandler<TEvent>(IHandlerFactory factory)
-            where TEvent : TransportTray
+            where TEvent : ITrigger
         {
             _requestHandlerManager.AddRequestHandler<TEvent>(factory);
         }
@@ -199,7 +200,7 @@ namespace ServiceAnt
         /// <typeparam name="TEvent"></typeparam>
         /// <param name="action"></param>
         public void AddRequestHandler<TEvent>(Func<TEvent, IRequestHandlerContext, Task> action)
-            where TEvent : TransportTray
+            where TEvent : ITrigger
         {
             _requestHandlerManager.AddRequestHandler<TEvent>(action);
         }
@@ -220,7 +221,7 @@ namespace ServiceAnt
         /// <typeparam name="TEvent"></typeparam>
         /// <param name="action"></param>
         public void RemoveRequestHandler<TEvent>(Func<TEvent, IRequestHandlerContext, Task> action)
-            where TEvent : TransportTray
+            where TEvent : ITrigger
         {
             _requestHandlerManager.RemoveRequestHandler(action);
         }
@@ -241,7 +242,7 @@ namespace ServiceAnt
         /// <typeparam name="T"></typeparam>
         /// <param name="event"></param>
         /// <returns></returns>
-        public T Send<T>(TransportTray @event)
+        public T Send<T>(ITrigger @event)
         {
             var asyncTask = ProcessRequest<T>(_requestHandlerManager.GetRequestName(@event.GetType()), JsonConvert.SerializeObject(@event));
             asyncTask.ConfigureAwait(false);
@@ -254,7 +255,7 @@ namespace ServiceAnt
         /// <typeparam name="T"></typeparam>
         /// <param name="event"></param>
         /// <returns></returns>
-        public async Task<T> SendAsync<T>(TransportTray @event)
+        public async Task<T> SendAsync<T>(ITrigger @event)
         {
             return await ProcessRequest<T>(_requestHandlerManager.GetRequestName(@event.GetType()), JsonConvert.SerializeObject(@event));
         }
@@ -298,7 +299,7 @@ namespace ServiceAnt
                 }
             }
 
-            return (T)requestContext.Response;
+            return JsonConvert.DeserializeObject<T>(JsonConvert.SerializeObject(requestContext.Response));
         }
 
 #endregion
