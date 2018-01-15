@@ -1,4 +1,5 @@
-﻿using ServiceAnt.Common.Extension;
+﻿using ServiceAnt.Base;
+using ServiceAnt.Common.Extension;
 using ServiceAnt.Handler;
 using ServiceAnt.Handler.Subscription.Handler;
 using System;
@@ -51,7 +52,7 @@ namespace ServiceAnt.Subscription
         /// </summary>
         /// <typeparam name="TEvent">The event must inherit TransportTray</typeparam>
         /// <param name="action">Handler delegate</param>
-        public void AddSubscription<TEvent>(Func<TEvent, Task> action) where TEvent : ITrigger
+        public void AddSubscription<TEvent>(Func<TEvent, Task> action) where TEvent : IEventTrigger
         {
             var eventHandler = new ActionEventHandler<TEvent>(action);
 
@@ -63,7 +64,7 @@ namespace ServiceAnt.Subscription
         /// </summary>
         /// <typeparam name="TEvent">The event must inherit TransportTray </typeparam>
         /// <param name="factory"></param>
-        public void AddSubscription<TEvent>(IHandlerFactory factory) where TEvent : ITrigger
+        public void AddSubscription<TEvent>(IHandlerFactory factory) where TEvent : IEventTrigger
         {
             DoAddSubscription(factory, typeof(TEvent));
         }
@@ -83,7 +84,7 @@ namespace ServiceAnt.Subscription
         /// </summary>
         /// <param name="event"></param>
         /// <returns></returns>
-        public List<IHandlerFactory> GetHandlerFactoriesForEvent(ITrigger @event)
+        public List<IHandlerFactory> GetHandlerFactoriesForEvent(IEventTrigger @event)
         {
             return GetOrCreateHandlerFactories(GetEventName(@event.GetType()));
         }
@@ -122,7 +123,7 @@ namespace ServiceAnt.Subscription
         /// </summary>
         /// <typeparam name="TEvent">The event must inherit TransportTray</typeparam>
         /// <param name="action">Handler delegate</param>
-        public void RemoveSubscription<TEvent>(Func<TEvent, Task> action) where TEvent : ITrigger
+        public void RemoveSubscription<TEvent>(Func<TEvent, Task> action) where TEvent : IEventTrigger
         {
             GetOrCreateHandlerFactories(typeof(TEvent).Name)
                 .Locking(factories =>

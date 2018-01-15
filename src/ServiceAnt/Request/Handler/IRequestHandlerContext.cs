@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace ServiceAnt.Request.Handler
 {
+    /// <summary>
+    /// Request Context
+    /// </summary>
     public interface IRequestHandlerContext
     {
         /// <summary>

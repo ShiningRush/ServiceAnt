@@ -1,12 +1,9 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ServiceAnt;
-using ServiceAnt.Handler;
+using ServiceAnt.Request;
 using ServiceAnt.Request.Handler;
+using ServiceAnt.Subscription;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace YiBan.Common.BaseAbpModule.Tests.Events
@@ -14,21 +11,34 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
     [TestClass]
     public class InProcessServiceBus_Test
     {
-        private class TestEventData : ITrigger
+        private class TestEventData : IEventTrigger
         {
             public string Msg { get; set; }
         }
 
-        private class TestEventDataWithParam : ITrigger
+        private class TestRequestData : IRequestTrigger
+        {
+            public string Msg { get; set; }
+        }
+
+        private class TestEventDataWithParam : IEventTrigger
         {
             public TestEventDataWithParam(string Msg) { }
 
             public string Msg { get; set; }
         }
 
-        private class TestEventDataT<T> : Trigger<T>
+        private class TestEventDataT<T> : EventTrigger<T>
         {
             public TestEventDataT(T test) : base(test)
+            { }
+
+            public string Msg { get; set; }
+        }
+
+        private class TestRequestDataT<T> : RequestTrigger<T>
+        {
+            public TestRequestDataT(T test) : base(test)
             { }
 
             public string Msg { get; set; }
@@ -199,28 +209,6 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
             Assert.AreEqual(testEventData.Msg, result);
         }
 
-        //[TestMethod]
-        //public void SubscriptionEntityEvent_ShouldTrigger()
-        //{
-        //    var eventBus = new InProcessServiceBus();
-        //    var result = "error";
-
-        //    eventBus.AddSubScription<EntityCreatedEventData<TestEventData>>(eventData =>
-        //    {
-        //        return Task.Run(() =>
-        //        {
-        //            result = eventData.TransportEntity.Msg;
-        //        });
-        //    });
-
-        //    var entity = new TestEventData() { Msg = "success" };
-        //    var testEventData = new EntityCreatedEventData<TestEventData>(entity);
-        //    eventBus.PublishSync(testEventData);
-
-
-        //    Assert.AreEqual(testEventData.TransportEntity.Msg, result);
-        //}
-
         [TestMethod]
         public void ShouldSupport_MutipleSameHandler()
         {
@@ -291,7 +279,7 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
         {
             var eventBus = new InProcessServiceBus();
 
-            eventBus.AddDynamicRequestHandler(typeof(TestEventData).Name, (eventData, context) =>
+            eventBus.AddDynamicRequestHandler(typeof(TestRequestData).Name, (eventData, context) =>
             {
                 return Task.Run(() =>
                 {
@@ -299,10 +287,10 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
                 });
             });
 
-            var testEventData = new TestEventData() { Msg = "success" };
-            var result = eventBus.Send<string>(testEventData);
+            var testRequestData = new TestRequestData() { Msg = "success" };
+            var result = eventBus.Send<string>(testRequestData);
 
-            Assert.AreEqual(testEventData.Msg, result);
+            Assert.AreEqual(testRequestData.Msg, result);
         }
 
         [TestMethod]
@@ -317,11 +305,11 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
                 });
             };
 
-            eventBus.AddDynamicRequestHandler(typeof(TestEventData).Name, delateFunc);
-            eventBus.RemoveDynamicRequestHandler(typeof(TestEventData).Name, delateFunc);
+            eventBus.AddDynamicRequestHandler(typeof(TestRequestData).Name, delateFunc);
+            eventBus.RemoveDynamicRequestHandler(typeof(TestRequestData).Name, delateFunc);
 
-            var testEventData = new TestEventData() { Msg = "success" };
-            var result = eventBus.Send<string>(testEventData);
+            var testRequestData = new TestRequestData() { Msg = "success" };
+            var result = eventBus.Send<string>(testRequestData);
 
             Assert.AreEqual(null, result);
         }
@@ -331,7 +319,7 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
         {
             var eventBus = new InProcessServiceBus();
 
-            eventBus.AddRequestHandler<TestEventData>((eventData, context) =>
+            eventBus.AddRequestHandler<TestRequestData>((eventData, context) =>
             {
                 return Task.Run(() =>
                 {
@@ -339,10 +327,10 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
                 });
             });
 
-            var testEventData = new TestEventData() { Msg = "success" };
-            var result = eventBus.Send<string>(testEventData);
+            var testRequestData = new TestRequestData() { Msg = "success" };
+            var result = eventBus.Send<string>(testRequestData);
 
-            Assert.AreEqual(testEventData.Msg, result);
+            Assert.AreEqual(testRequestData.Msg, result);
         }
 
         [TestMethod]
@@ -358,11 +346,11 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
                 });
             };
 
-            eventBus.AddRequestHandler<TestEventData>(delateFunc);
-            eventBus.RemoveRequestHandler<TestEventData>(delateFunc);
+            eventBus.AddRequestHandler<TestRequestData>(delateFunc);
+            eventBus.RemoveRequestHandler<TestRequestData>(delateFunc);
 
-            var testEventData = new TestEventData() { Msg = "success" };
-            var result = eventBus.Send<string>(testEventData);
+            var testRequestData = new TestRequestData() { Msg = "success" };
+            var result = eventBus.Send<string>(testRequestData);
 
             Assert.AreEqual(null, result);
         }
@@ -372,7 +360,7 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
         {
             var eventBus = new InProcessServiceBus();
 
-            eventBus.AddRequestHandler<TestEventData>((eventData, context) =>
+            eventBus.AddRequestHandler<TestRequestData>((eventData, context) =>
             {
                 return Task.Run(() =>
                 {
@@ -380,7 +368,7 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
                 });
             });
 
-            eventBus.AddRequestHandler<TestEventData>((eventData, context) =>
+            eventBus.AddRequestHandler<TestRequestData>((eventData, context) =>
             {
                 return Task.Run(() =>
                 {
@@ -388,10 +376,10 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
                 });
             });
 
-            var testEventData = new TestEventData() { Msg = "success" };
-            var result = eventBus.Send<string>(testEventData);
+            var testRequestData = new TestRequestData() { Msg = "success" };
+            var result = eventBus.Send<string>(testRequestData);
 
-            Assert.AreEqual(testEventData.Msg + "12", result);
+            Assert.AreEqual(testRequestData.Msg + "12", result);
         }
 
         [TestMethod]
@@ -399,7 +387,7 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
         {
             var eventBus = new InProcessServiceBus();
 
-            eventBus.AddRequestHandler<TestEventData>((eventData, context) =>
+            eventBus.AddRequestHandler<TestRequestData>((eventData, context) =>
             {
                 return Task.Run(() =>
                 {
@@ -408,7 +396,7 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
                 });
             });
 
-            eventBus.AddRequestHandler<TestEventData>((eventData, context) =>
+            eventBus.AddRequestHandler<TestRequestData>((eventData, context) =>
             {
                 return Task.Run(() =>
                 {
@@ -416,10 +404,10 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
                 });
             });
 
-            var testEventData = new TestEventData() { Msg = "success" };
-            var result = eventBus.Send<string>(testEventData);
+            var testRequestData = new TestRequestData() { Msg = "success" };
+            var result = eventBus.Send<string>(testRequestData);
 
-            Assert.AreEqual(testEventData.Msg + "1", result);
+            Assert.AreEqual(testRequestData.Msg + "1", result);
         }
 
 
@@ -428,7 +416,7 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
         {
             var eventBus = new InProcessServiceBus();
 
-            eventBus.AddRequestHandler<TestEventDataT<TestEventData>>((eventData, context) =>
+            eventBus.AddRequestHandler<TestRequestDataT<TestEventData>>((eventData, context) =>
             {
                 return Task.Run(() =>
                 {
@@ -436,10 +424,10 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
                 });
             });
 
-            var testEventData = new TestEventDataT<TestEventData>(new TestEventData() { Msg = "non" }) { Msg = "success" };
-            var result = eventBus.Send<string>(testEventData);
+            var testRequestData = new TestRequestDataT<TestEventData>(new TestEventData() { Msg = "non" }) { Msg = "success" };
+            var result = eventBus.Send<string>(testRequestData);
 
-            Assert.AreEqual(testEventData.Dto.Msg + testEventData.Msg, result);
+            Assert.AreEqual(testRequestData.Dto.Msg + testRequestData.Msg, result);
         }
 
         [TestMethod]
@@ -447,7 +435,7 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
         {
             var eventBus = new InProcessServiceBus();
 
-            eventBus.AddRequestHandler<TestEventDataT<TestEventData>>((eventData, context) =>
+            eventBus.AddRequestHandler<TestRequestDataT<TestEventData>>((eventData, context) =>
             {
                 return Task.Run(() =>
                 {
@@ -455,7 +443,7 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
                 });
             });
 
-            eventBus.AddRequestHandler<TestEventDataT<TestDemo.TestEventData>>((eventData, context) =>
+            eventBus.AddRequestHandler<TestRequestDataT<TestDemo.TestEventData>>((eventData, context) =>
             {
                 return Task.Run(() =>
                 {
@@ -463,12 +451,61 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
                 });
             });
 
-            var testEventData = new TestEventDataT<TestEventData>(new TestEventData()) { Msg = "success" };
-            var result = eventBus.Send<string>(testEventData);
+            var testRequestData = new TestRequestDataT<TestEventData>(new TestEventData()) { Msg = "success" };
+            var result = eventBus.Send<string>(testRequestData);
 
 
-            Assert.AreEqual(testEventData.Msg + "12", result);
+            Assert.AreEqual(testRequestData.Msg + "12", result);
         }
+        #endregion
+
+        #region CommonFunction
+
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public async Task ShouldRaiseException_WhenNoLogDelate()
+        {
+            var eventBus = new InProcessServiceBus();
+
+            eventBus.AddDynamicSubscription(typeof(TestEventData).Name, eventData =>
+            {
+                return Task.Run(() =>
+                {
+                    throw new Exception("Test Exception");
+                });
+            });
+
+            var testEventData = new TestEventData() { Msg = "success" };
+            await eventBus.Publish(testEventData);
+        }
+
+        [TestMethod]
+        public async Task ShouldLogMessage_WhenSetLogDelate()
+        {
+            var eventBus = new InProcessServiceBus();
+            var logMsg = "";
+            var testException = new Exception("Test Exception");
+            Exception catchedException = null;
+            eventBus.OnLogBusMessage += (logLevel, msg, ex) =>
+            {
+                logMsg = msg;
+                catchedException = ex;
+            };
+            eventBus.AddDynamicSubscription(typeof(TestEventData).Name, eventData =>
+            {
+                return Task.Run(() =>
+                {
+                    throw testException;
+                });
+            });
+
+            var testEventData = new TestEventData() { Msg = "success" };
+            await eventBus.Publish(testEventData);
+
+            Assert.AreNotEqual(0, logMsg.Length);
+            Assert.AreEqual(testException, catchedException);
+        }
+
         #endregion
     }
 }

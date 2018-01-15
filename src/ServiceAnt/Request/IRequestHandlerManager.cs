@@ -1,8 +1,7 @@
-﻿using System;
+﻿using ServiceAnt.Base;
+using ServiceAnt.Request;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ServiceAnt.Handler.Request
 {
@@ -23,7 +22,7 @@ namespace ServiceAnt.Handler.Request
         /// </summary>
         /// <param name="request">request object</param>
         /// <returns></returns>
-        List<IHandlerFactory> GetHandlerFactoriesForRequest(ITrigger @request);
+        List<IHandlerFactory> GetHandlerFactoriesForRequest(IRequestTrigger @request);
 
         /// <summary>
         /// Get the request name by TransportTray type

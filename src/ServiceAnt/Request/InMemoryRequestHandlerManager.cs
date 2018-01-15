@@ -1,4 +1,6 @@
-﻿using ServiceAnt.Common.Extension;
+﻿using ServiceAnt.Base;
+using ServiceAnt.Common.Extension;
+using ServiceAnt.Request;
 using ServiceAnt.Request.Handler;
 using System;
 using System.Collections.Concurrent;
@@ -48,23 +50,23 @@ namespace ServiceAnt.Handler.Request
         /// <summary>
         /// Register handler with delegate
         /// </summary>
-        /// <typeparam name="TEvent"></typeparam>
+        /// <typeparam name="TRequest"></typeparam>
         /// <param name="action"></param>
-        public void AddRequestHandler<TEvent>(Func<TEvent, IRequestHandlerContext, Task> action) where TEvent : ITrigger
+        public void AddRequestHandler<TRequest>(Func<TRequest, IRequestHandlerContext, Task> action) where TRequest : IRequestTrigger
         {
-            var eventHandler = new ActionRequestHandler<TEvent>(action);
+            var eventHandler = new ActionRequestHandler<TRequest>(action);
 
-            AddRequestHandler<TEvent>(new SingletonHandlerFactory(eventHandler, typeof(TEvent)));
+            AddRequestHandler<TRequest>(new SingletonHandlerFactory(eventHandler, typeof(TRequest)));
         }
 
         /// <summary>
         /// Register handler with handler factory
         /// </summary>
-        /// <typeparam name="TEvent"></typeparam>
+        /// <typeparam name="TRequest"></typeparam>
         /// <param name="factory"></param>
-        public void AddRequestHandler<TEvent>(IHandlerFactory factory) where TEvent : ITrigger
+        public void AddRequestHandler<TRequest>(IHandlerFactory factory) where TRequest : IRequestTrigger
         {
-            DoAddRequestHandler(factory, typeof(TEvent));
+            DoAddRequestHandler(factory, typeof(TRequest));
         }
 
         /// <summary>
@@ -72,7 +74,7 @@ namespace ServiceAnt.Handler.Request
         /// </summary>
         /// <param name="request">request object</param>
         /// <returns></returns>
-        public List<IHandlerFactory> GetHandlerFactoriesForRequest(ITrigger request)
+        public List<IHandlerFactory> GetHandlerFactoriesForRequest(IRequestTrigger request)
         {
             return GetOrCreateHandlerFactories(GetRequestName(request.GetType()));
         }
@@ -136,11 +138,11 @@ namespace ServiceAnt.Handler.Request
         /// <summary>
         /// Remove handler by event type
         /// </summary>
-        /// <typeparam name="TEvent"></typeparam>
+        /// <typeparam name="TRequest"></typeparam>
         /// <param name="action"></param>
-        public void RemoveRequestHandler<TEvent>(Func<TEvent, IRequestHandlerContext, Task> action) where TEvent : ITrigger
+        public void RemoveRequestHandler<TRequest>(Func<TRequest, IRequestHandlerContext, Task> action) where TRequest : IRequestTrigger
         {
-            GetOrCreateHandlerFactories(typeof(TEvent).Name)
+            GetOrCreateHandlerFactories(typeof(TRequest).Name)
                 .Locking(factories =>
                 {
                     factories.RemoveAll(aFactory =>
@@ -151,7 +153,7 @@ namespace ServiceAnt.Handler.Request
                             return false;
                         }
 
-                        var actionHandler = singleInstanceFactory.GetHandler() as ActionRequestHandler<TEvent>;
+                        var actionHandler = singleInstanceFactory.GetHandler() as ActionRequestHandler<TRequest>;
                         if (actionHandler == null)
                         {
                             return false;

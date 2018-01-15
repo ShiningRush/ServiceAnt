@@ -1,4 +1,5 @@
-﻿using ServiceAnt.Subscription.Handler;
+﻿using ServiceAnt.Subscription;
+using ServiceAnt.Subscription.Handler;
 using System;
 using System.Threading.Tasks;
 
@@ -8,7 +9,7 @@ namespace ServiceAnt.Handler.Subscription.Handler
     /// Handle event by action
     /// </summary>
     /// <typeparam name="TEvent"></typeparam>
-    public class ActionEventHandler<TEvent> : IEventHandler<TEvent> where TEvent : ITrigger
+    public class ActionEventHandler<TEvent> : IEventHandler<TEvent> where TEvent : IEventTrigger
     {
         private Func<TEvent, Task> _action;
 

@@ -1,13 +1,13 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using ServiceAnt.Handler;
+using ServiceAnt.Base;
 using ServiceAnt.Handler.Request;
 using ServiceAnt.Handler.Subscription.Handler;
+using ServiceAnt.Request;
 using ServiceAnt.Request.Handler;
 using ServiceAnt.Subscription;
 using ServiceAnt.Subscription.Handler;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace ServiceAnt
@@ -79,7 +79,7 @@ namespace ServiceAnt
         /// </summary>
         /// <typeparam name="TEvent">The event must inherit TransportTray</typeparam>
         /// <param name="action">Handler delegate</param>
-        public void AddSubscription<TEvent>(Func<TEvent, Task> action) where TEvent : ITrigger
+        public void AddSubscription<TEvent>(Func<TEvent, Task> action) where TEvent : IEventTrigger
         {
             _subcriptionManager.AddSubscription<TEvent>(action);
         }
@@ -89,7 +89,7 @@ namespace ServiceAnt
         /// </summary>
         /// <typeparam name="TEvent">The event must inherit TransportTray </typeparam>
         /// <param name="factory"></param>s
-        public void AddSubscription<TEvent>(IHandlerFactory factory) where TEvent : ITrigger
+        public void AddSubscription<TEvent>(IHandlerFactory factory) where TEvent : IEventTrigger
         {
             _subcriptionManager.AddSubscription<TEvent>(factory);
         }
@@ -110,7 +110,7 @@ namespace ServiceAnt
         /// </summary>
         /// <typeparam name="TEvent">The event must inherit TransportTray</typeparam>
         /// <param name="action">Handler delegate</param>
-        public void RemoveSubscription<TEvent>(Func<TEvent, Task> action) where TEvent : ITrigger
+        public void RemoveSubscription<TEvent>(Func<TEvent, Task> action) where TEvent : IEventTrigger
         {
             _subcriptionManager.RemoveSubscription<TEvent>(action);
         }
@@ -120,7 +120,7 @@ namespace ServiceAnt
         /// </summary>
         /// <param name="event"></param>
         /// <returns></returns>
-        public Task Publish(ITrigger @event)
+        public Task Publish(IEventTrigger @event)
         {
             var asyncTask = ProcessEvent(_subcriptionManager.GetEventName(@event.GetType()), JsonConvert.SerializeObject(@event));
             return asyncTask;
@@ -130,7 +130,7 @@ namespace ServiceAnt
         /// Publish a event sync
         /// </summary>
         /// <param name="event"></param>
-        public void PublishSync(ITrigger @event)
+        public void PublishSync(IEventTrigger @event)
         {
             var asyncTask = ProcessEvent(_subcriptionManager.GetEventName(@event.GetType()), JsonConvert.SerializeObject(@event));
             asyncTask.Wait();
@@ -164,7 +164,7 @@ namespace ServiceAnt
                 }
                 catch (Exception ex)
                 {
-                    LogMessage( LogLevel.ERROR, "There has raised a error when publishing event.", ex);
+                    LogMessage( LogLevel.ERROR, "There has caught a error when publishing event.", ex);
                 }
             }
         }
@@ -186,23 +186,23 @@ namespace ServiceAnt
         /// <summary>
         /// Register handler with handler factory
         /// </summary>
-        /// <typeparam name="TEvent"></typeparam>
+        /// <typeparam name="TRequest"></typeparam>
         /// <param name="factory"></param>
-        public void AddRequestHandler<TEvent>(IHandlerFactory factory)
-            where TEvent : ITrigger
+        public void AddRequestHandler<TRequest>(IHandlerFactory factory)
+            where TRequest : IRequestTrigger
         {
-            _requestHandlerManager.AddRequestHandler<TEvent>(factory);
+            _requestHandlerManager.AddRequestHandler<TRequest>(factory);
         }
 
         /// <summary>
         /// Register handler with delegate
         /// </summary>
-        /// <typeparam name="TEvent"></typeparam>
+        /// <typeparam name="TRequest"></typeparam>
         /// <param name="action"></param>
-        public void AddRequestHandler<TEvent>(Func<TEvent, IRequestHandlerContext, Task> action)
-            where TEvent : ITrigger
+        public void AddRequestHandler<TRequest>(Func<TRequest, IRequestHandlerContext, Task> action)
+            where TRequest : IRequestTrigger
         {
-            _requestHandlerManager.AddRequestHandler<TEvent>(action);
+            _requestHandlerManager.AddRequestHandler<TRequest>(action);
         }
 
         /// <summary>
@@ -218,10 +218,10 @@ namespace ServiceAnt
         /// <summary>
         /// Remove handler by event type
         /// </summary>
-        /// <typeparam name="TEvent"></typeparam>
+        /// <typeparam name="TRequest"></typeparam>
         /// <param name="action"></param>
-        public void RemoveRequestHandler<TEvent>(Func<TEvent, IRequestHandlerContext, Task> action)
-            where TEvent : ITrigger
+        public void RemoveRequestHandler<TRequest>(Func<TRequest, IRequestHandlerContext, Task> action)
+            where TRequest : IRequestTrigger
         {
             _requestHandlerManager.RemoveRequestHandler(action);
         }
@@ -242,7 +242,7 @@ namespace ServiceAnt
         /// <typeparam name="T"></typeparam>
         /// <param name="event"></param>
         /// <returns></returns>
-        public T Send<T>(ITrigger @event)
+        public T Send<T>(IRequestTrigger @event)
         {
             var asyncTask = ProcessRequest<T>(_requestHandlerManager.GetRequestName(@event.GetType()), JsonConvert.SerializeObject(@event));
             asyncTask.ConfigureAwait(false);
@@ -255,7 +255,7 @@ namespace ServiceAnt
         /// <typeparam name="T"></typeparam>
         /// <param name="event"></param>
         /// <returns></returns>
-        public async Task<T> SendAsync<T>(ITrigger @event)
+        public async Task<T> SendAsync<T>(IRequestTrigger @event)
         {
             return await ProcessRequest<T>(_requestHandlerManager.GetRequestName(@event.GetType()), JsonConvert.SerializeObject(@event));
         }
@@ -306,7 +306,10 @@ namespace ServiceAnt
 
         private void LogMessage(LogLevel type, string value, Exception ex)
         {
-            OnLogBusMessage?.Invoke(type, value, ex);
+            if (OnLogBusMessage != null)
+                OnLogBusMessage(type, value, ex);
+            else
+                throw ex;
         }
     }
 }

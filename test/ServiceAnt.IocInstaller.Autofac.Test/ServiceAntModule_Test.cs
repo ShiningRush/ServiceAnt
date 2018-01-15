@@ -6,6 +6,9 @@ using ServiceAnt.Handler.Subscription.Handler;
 using ServiceAnt.Request.Handler;
 using ServiceAnt.Handler;
 using ServiceAnt.Subscription.Handler;
+using ServiceAnt.Base;
+using ServiceAnt.Subscription;
+using ServiceAnt.Request;
 
 namespace ServiceAnt.IocInstaller.Autofac.Test
 {
@@ -27,7 +30,7 @@ namespace ServiceAnt.IocInstaller.Autofac.Test
             var autofacContainer = newContainer.Build();
             ServiceAntModule.RegisterHandlers(autofacContainer);
 
-            await autofacContainer.Resolve<IServiceBus>().Publish(new TestTrigger() { Result = testValue });
+            await autofacContainer.Resolve<IServiceBus>().Publish(new TestEventTrigger() { Result = testValue });
 
             Assert.AreEqual(testValue, RESULT_CONTAINER);
         }
@@ -41,19 +44,24 @@ namespace ServiceAnt.IocInstaller.Autofac.Test
             var autofacContainer = newContainer.Build();
             ServiceAntModule.RegisterHandlers(autofacContainer);
 
-            var result = await autofacContainer.Resolve<IServiceBus>().SendAsync<string>(new TestTrigger() { Result = testValue });
+            var result = await autofacContainer.Resolve<IServiceBus>().SendAsync<string>(new TestRequestTrigger() { Result = testValue });
 
             Assert.AreEqual(testValue, result);
         }
 
-        public class TestTrigger : ITrigger
+        public class TestEventTrigger : IEventTrigger
         {
             public string Result { get; set; }
         }
 
-        public class IocEventHandler : IEventHandler<TestTrigger>
+        public class TestRequestTrigger : IRequestTrigger
         {
-            public Task HandleAsync(TestTrigger param)
+            public string Result { get; set; }
+        }
+
+        public class IocEventHandler : IEventHandler<TestEventTrigger>
+        {
+            public Task HandleAsync(TestEventTrigger param)
             {
                 RESULT_CONTAINER = param.Result;
 
@@ -61,9 +69,9 @@ namespace ServiceAnt.IocInstaller.Autofac.Test
             }
         }
 
-        public class IocRequestHandler : IRequestHandler<TestTrigger>
+        public class IocRequestHandler : IRequestHandler<TestRequestTrigger>
         {
-            public Task HandleAsync(TestTrigger param, IRequestHandlerContext handlerContext)
+            public Task HandleAsync(TestRequestTrigger param, IRequestHandlerContext handlerContext)
             {
                 handlerContext.Response = param.Result;
                 return Task.Delay(1);

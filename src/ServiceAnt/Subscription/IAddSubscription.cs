@@ -1,4 +1,4 @@
-﻿using ServiceAnt.Handler;
+﻿using ServiceAnt.Base;
 using System;
 using System.Threading.Tasks;
 
@@ -22,7 +22,7 @@ namespace ServiceAnt.Subscription
         /// <typeparam name="TEvent">The event must inherit TransportTray </typeparam>
         /// <param name="factory"></param>
         void AddSubscription<TEvent>(IHandlerFactory factory)
-            where TEvent : ITrigger;
+            where TEvent : IEventTrigger;
 
         /// <summary>
         /// Add Subscription for event by delegate
@@ -30,7 +30,7 @@ namespace ServiceAnt.Subscription
         /// <typeparam name="TEvent">The event must inherit TransportTray</typeparam>
         /// <param name="action">Handler delegate</param>
         void AddSubscription<TEvent>(Func<TEvent, Task> action)
-            where TEvent : ITrigger;
+            where TEvent : IEventTrigger;
 
         /// <summary>
         /// Add Subscription for event by delegate with dynamic parameter
@@ -45,7 +45,7 @@ namespace ServiceAnt.Subscription
         /// <typeparam name="TEvent">The event must inherit TransportTray</typeparam>
         /// <param name="action">Handler delegate</param>
         void RemoveSubscription<TEvent>(Func<TEvent, Task> action)
-            where TEvent : ITrigger;
+            where TEvent : IEventTrigger;
 
         /// <summary>
         /// Remove subscription from servicebus

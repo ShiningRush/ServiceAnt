@@ -12,4 +12,8 @@
   <ItemGroup>
     <ProjectReference Include="..\ServiceAnt\ServiceAnt.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="ServiceAnt\Handler\" />
+  </ItemGroup>
 </Project>

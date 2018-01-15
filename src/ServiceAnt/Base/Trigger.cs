@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ServiceAnt.Handler
+namespace ServiceAnt.Base
 {
     /// <summary>
     /// It is used to trigger event or request

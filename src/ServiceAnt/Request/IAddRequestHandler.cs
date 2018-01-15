@@ -1,8 +1,7 @@
-﻿using ServiceAnt.Request.Handler;
+﻿using ServiceAnt.Base;
+using ServiceAnt.Request;
+using ServiceAnt.Request.Handler;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace ServiceAnt.Handler.Request
@@ -22,18 +21,18 @@ namespace ServiceAnt.Handler.Request
         /// <summary>
         /// Register handler with handler factory
         /// </summary>
-        /// <typeparam name="TEvent"></typeparam>
+        /// <typeparam name="TRequest"></typeparam>
         /// <param name="factory"></param>
-        void AddRequestHandler<TEvent>(IHandlerFactory factory)
-            where TEvent : ITrigger;
+        void AddRequestHandler<TRequest>(IHandlerFactory factory)
+            where TRequest : IRequestTrigger;
 
         /// <summary>
         /// Register handler with delegate
         /// </summary>
-        /// <typeparam name="TEvent"></typeparam>
+        /// <typeparam name="TRequest"></typeparam>
         /// <param name="action"></param>
-        void AddRequestHandler<TEvent>(Func<TEvent, IRequestHandlerContext, Task> action)
-            where TEvent : ITrigger;
+        void AddRequestHandler<TRequest>(Func<TRequest, IRequestHandlerContext, Task> action)
+            where TRequest : IRequestTrigger;
 
         /// <summary>
         /// Register dynamic handler with delegate
@@ -45,10 +44,10 @@ namespace ServiceAnt.Handler.Request
         /// <summary>
         /// Remove handler by event type
         /// </summary>
-        /// <typeparam name="TEvent"></typeparam>
+        /// <typeparam name="TRequest"></typeparam>
         /// <param name="action"></param>
-        void RemoveRequestHandler<TEvent>(Func<TEvent, IRequestHandlerContext, Task> action)
-            where TEvent : ITrigger;
+        void RemoveRequestHandler<TRequest>(Func<TRequest, IRequestHandlerContext, Task> action)
+            where TRequest : IRequestTrigger;
 
         /// <summary>
         /// Remove dynamic handler by eventName

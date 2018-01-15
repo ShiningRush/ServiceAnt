@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ServiceAnt.Handler
+namespace ServiceAnt.Base
 {
     internal class SingletonHandlerFactory : IHandlerFactory
     {

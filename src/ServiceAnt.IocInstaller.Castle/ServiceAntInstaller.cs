@@ -52,7 +52,7 @@ namespace ServiceAnt.IocInstaller.Castle
             foreach (var aHandlerAssembly in _handlerAssemblies)
             {
                 container.Register(Classes.FromAssembly(aHandlerAssembly)
-                    .BasedOn<ServiceAnt.Handler.IHandler>()
+                    .BasedOn<Base.IHandler>()
                     .WithService.Self()
                     .LifestyleTransient());
             }
@@ -62,7 +62,7 @@ namespace ServiceAnt.IocInstaller.Castle
 
         private void Kernel_ComponentRegistered(string key, IHandler handler)
         {
-            if (!typeof(ServiceAnt.Handler.IHandler).GetTypeInfo().IsAssignableFrom(handler.ComponentModel.Implementation))
+            if (!typeof(Base.IHandler).GetTypeInfo().IsAssignableFrom(handler.ComponentModel.Implementation))
             {
                 return;
             }
@@ -70,7 +70,7 @@ namespace ServiceAnt.IocInstaller.Castle
             var interfaces = handler.ComponentModel.Implementation.GetTypeInfo().GetInterfaces();
             foreach (var aInterface in interfaces)
             {
-                if (!typeof(ServiceAnt.Handler.IHandler).GetTypeInfo().IsAssignableFrom(aInterface))
+                if (!typeof(Base.IHandler).GetTypeInfo().IsAssignableFrom(aInterface))
                 {
                     continue;
                 }
@@ -81,9 +81,9 @@ namespace ServiceAnt.IocInstaller.Castle
                 if (genericArgs.Length == 1)
                 {
                     if (typeof(IRequestHandler).GetTypeInfo().IsAssignableFrom(aInterface))
-                        _serviceBus.AddRequestHandler(genericArgs[0], new ServiceAnt.Handler.IocHandlerFactory(resolver, handler.ComponentModel.Implementation, genericArgs[0]));
+                        _serviceBus.AddRequestHandler(genericArgs[0], new Base.IocHandlerFactory(resolver, handler.ComponentModel.Implementation, genericArgs[0]));
                     else
-                        _serviceBus.AddSubscription(genericArgs[0], new ServiceAnt.Handler.IocHandlerFactory(resolver, handler.ComponentModel.Implementation, genericArgs[0]));
+                        _serviceBus.AddSubscription(genericArgs[0], new Base.IocHandlerFactory(resolver, handler.ComponentModel.Implementation, genericArgs[0]));
                 }
             }
         }

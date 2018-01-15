@@ -1,5 +1,6 @@
-﻿using ServiceAnt.Handler;
+﻿using ServiceAnt.Base;
 using ServiceAnt.Handler.Request;
+using ServiceAnt.Request;
 using ServiceAnt.Subscription;
 using System;
 using System.Threading.Tasks;
@@ -48,7 +49,7 @@ namespace ServiceAnt
         /// </summary>
         /// <param name="event"></param>
         /// <returns></returns>
-        Task Publish(ITrigger @event);
+        Task Publish(IEventTrigger @event);
 
         /// <summary>
         /// Send a request sync
@@ -56,7 +57,7 @@ namespace ServiceAnt
         /// <typeparam name="T"></typeparam>
         /// <param name="event"></param>
         /// <returns></returns>
-        T Send<T>(ITrigger @event);
+        T Send<T>(IRequestTrigger @event);
 
         /// <summary>
         /// Send a request async
@@ -64,6 +65,6 @@ namespace ServiceAnt
         /// <typeparam name="T"></typeparam>
         /// <param name="event"></param>
         /// <returns></returns>
-        Task<T> SendAsync<T>(ITrigger @event);
+        Task<T> SendAsync<T>(IRequestTrigger @event);
     }
 }

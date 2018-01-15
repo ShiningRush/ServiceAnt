@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using ServiceAnt.Base;
 using ServiceAnt.Handler.Request;
 using ServiceAnt.Infrastructure.Dependency;
 using ServiceAnt.Request.Handler;
@@ -35,7 +36,7 @@ namespace ServiceAnt.IocInstaller.Autofac
         {
             foreach (var aHandlerAssembly in _handlerAssemblies)
             {
-                var handlerTypes = aHandlerAssembly.GetTypes().Where(p => typeof(ServiceAnt.Handler.IHandler).IsAssignableFrom(p) && !p.IsInterface);
+                var handlerTypes = aHandlerAssembly.GetTypes().Where(p => typeof(IHandler).IsAssignableFrom(p) && !p.IsInterface);
 
                 foreach (var aHandler in handlerTypes)
                 {
@@ -67,7 +68,7 @@ namespace ServiceAnt.IocInstaller.Autofac
             var interfaces = aHandlerType.GetInterfaces();
             foreach (var aInterface in interfaces)
             {
-                if (!typeof(ServiceAnt.Handler.IHandler).IsAssignableFrom(aInterface))
+                if (!typeof(IHandler).IsAssignableFrom(aInterface))
                 {
                     continue;
                 }
@@ -76,9 +77,9 @@ namespace ServiceAnt.IocInstaller.Autofac
                 if (genericArgs.Length == 1)
                 {
                     if (typeof(IRequestHandler).IsAssignableFrom(aInterface))
-                        container.Resolve<IServiceBus>().AddRequestHandler(genericArgs[0], new ServiceAnt.Handler.IocHandlerFactory(container.Resolve<IocResolver>(), aHandlerType, genericArgs[0]));
+                        container.Resolve<IServiceBus>().AddRequestHandler(genericArgs[0], new IocHandlerFactory(container.Resolve<IocResolver>(), aHandlerType, genericArgs[0]));
                     else
-                        container.Resolve<IServiceBus>().AddSubscription(genericArgs[0], new ServiceAnt.Handler.IocHandlerFactory(container.Resolve<IocResolver>(), aHandlerType, genericArgs[0]));
+                        container.Resolve<IServiceBus>().AddSubscription(genericArgs[0], new IocHandlerFactory(container.Resolve<IocResolver>(), aHandlerType, genericArgs[0]));
                 }
             }
         }

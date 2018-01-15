@@ -1,8 +1,5 @@
-﻿using ServiceAnt.Handler;
+﻿using ServiceAnt.Base;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace ServiceAnt.Request.Handler
@@ -11,7 +8,7 @@ namespace ServiceAnt.Request.Handler
     /// The container of request handler registing with delegate
     /// </summary>
     /// <typeparam name="TRequest"></typeparam>
-    public class ActionRequestHandler<TRequest> : IRequestHandler<TRequest> where TRequest : ITrigger
+    public class ActionRequestHandler<TRequest> : IRequestHandler<TRequest> where TRequest : IRequestTrigger
     {
         private Func<TRequest, IRequestHandlerContext, Task> _action;
 
