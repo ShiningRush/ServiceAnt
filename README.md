@@ -55,7 +55,7 @@ ServiceAnt 有两种工作模式分别是:
             Console.ReadLine();
         }
 
-        class TestEvent : ITrigger
+        class TestEvent : IEventTrigger
         {
             public string EventValue { get; set; }
         }
@@ -108,14 +108,14 @@ ServiceAnt 有两种工作模式分别是:
             Console.ReadLine();
         }
 
-        class TestRequest : ITrigger
+        class TestRequest : IRequestTrigger
         {
             public string RequestParameter { get; set; }
         }
 ```
 
 > ### 提示
-> 无论你使用 Pub/Sub 或 Req/Resp 模式，你的发起源对象都必须要继承于 ITrigger, 这是为了以后的拓展性以及规范性考虑.
+> 在使用 Pub/Sub 模式时, 你的触发对象必须继承 IEventTrigger 接口, 而 Req/Resp 模式则必须继承 IRequestTrigger.
 
 ## 注册处理函数
 
@@ -140,7 +140,7 @@ ServiceAnt 支持以下两种方式注册处理函数
 
 注册事件处理函数:
 ```c#
-        public class IocEventHandler : IEventHandler<TestTrigger>
+        public class IocEventHandler : IEventHandler<TestEventTrigger>
         {
             public Task HandleAsync(TestTray param)
             {
@@ -153,7 +153,7 @@ ServiceAnt 支持以下两种方式注册处理函数
 
 注册请求处理函数:
 ```c#
-        public class IocRequestHandler : IRequestHandler<TestTrigger>
+        public class IocRequestHandler : IRequestHandler<TestRequestTrigger>
         {
             public Task HandleAsync(TestTray param, IRequestHandlerContext handlerContext)
             {
@@ -247,11 +247,32 @@ ServiceAnt都会感知到, 并且自动添加它.
 
 ## 异常处理与日志
 
-ServiceAnt 在触发事件的过程中,可能会产生某些异常,正常情况下这些异常会在内部捕捉到, 而如何处理,  
-取决于你是否配置了日志的记录委托.  
+### 异常处理
+ServiceAnt 在触发处理函数的过程中,可能会产生某些异常,正常情况下我们希望用户能在自己的处理函数中干掉他们,  
+但如果出现了用户未处理的异常, ServiceAnt 会采取以下的默认方式处理它们:  
 
-你如果订阅了位于 `IServiceBus` 中的 `OnLogBusMessage` 事件, 那么这些异常消息都会通过该事件发出.  
-如果没有, ServiceAnt 则会直接把异常上抛.
+* `Pub/Sub`:  所有异常会被捕捉, 并且记录日志消息, 但不会上抛, 也就是说某一个处理函数发生异常并不会影响其他订阅者的触发.  
+
+* `Req/Resp`: 这种模式下的异常会记录日志消息, 并被上抛, 这会中断接下来的处理函数(如果有的话).
+
+如果你需要更改它们的默认行为, 在触发相应的函数时你可以传入 `TriggerOption` 来控制是否忽略未处理的异常, 如下:   
+
+```c#
+          // it will make servicebus not ignore exception when handler function raise a unhanled exception
+          serviceBus.Publish(testEventData, new TriggerOption(false));
+```
+
+### 日志
+
+你如果订阅了位于 `IServiceBus` 中的 `OnLogBusMessage` 事件, 那么 `ServiceBus` 的日志消息都会通过该事件发出.  
+
+```c#
+            serviceBus.OnLogBusMessage += (logLevel, msg, ex) =>
+            {
+                logMsg = msg;
+                catchedException = ex;
+            };
+```
 
 ## 使用ServiceAnt 的一些最佳实践
 
