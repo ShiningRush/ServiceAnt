@@ -55,7 +55,7 @@ ServiceAnt 有两种工作模式分别是:
             Console.ReadLine();
         }
 
-        class TestEvent : TransportTray
+        class TestEvent : ITrigger
         {
             public string EventValue { get; set; }
         }
@@ -81,7 +81,7 @@ ServiceAnt 有两种工作模式分别是:
                 return Task.FromResult(0);
             });
 
-            // it used when you do not want to create transporttray class, you can handle it with a dynamic parameter
+            // it used when you do not want to create trigger class, you can handle it with a dynamic parameter
             serviceBus.AddDynamicRequestHandler("TestRequest", (eventParam, handlerContext) =>
             {
                 Console.WriteLine($"DynamicRequest Handler get value: {eventParam.RequestParameter}");
@@ -108,15 +108,14 @@ ServiceAnt 有两种工作模式分别是:
             Console.ReadLine();
         }
 
-        class TestRequest : TransportTray
+        class TestRequest : ITrigger
         {
             public string RequestParameter { get; set; }
         }
 ```
 
 > ### 提示
-> 无论你使用 Pub/Sub 或 Req/Resp 模式，你的发起源对象都必须要继承于 TransportTray, 这是为了以后的拓展性以及规范性考虑, 这个基类中包含了一些基础
-> 属性便于记录及区分它们.
+> 无论你使用 Pub/Sub 或 Req/Resp 模式，你的发起源对象都必须要继承于 ITrigger, 这是为了以后的拓展性以及规范性考虑.
 
 ## 注册处理函数
 
@@ -133,7 +132,7 @@ ServiceAnt 支持以下两种方式注册处理函数
 但在我们团队使用过程中并没有发现通过委托注册存在什么弊端，而且在你需要复用某些局部变量时, 这种方式会更好一些。  
 
 > ### 注意
-> 隐式的动态类型现在没法正确注册泛型的TransportTray的处理函数, 因为泛型在转换名称的过程中不是单纯的类名转换
+> 隐式的动态类型现在没法正确注册泛型的 Trigger 的处理函数, 因为泛型在转换名称的过程中不是单纯的类名转换
 
 ### Ioc注册
 
@@ -141,7 +140,7 @@ ServiceAnt 支持以下两种方式注册处理函数
 
 注册事件处理函数:
 ```c#
-        public class IocEventHandler : IEventHandler<TestTray>
+        public class IocEventHandler : IEventHandler<TestTrigger>
         {
             public Task HandleAsync(TestTray param)
             {
@@ -154,7 +153,7 @@ ServiceAnt 支持以下两种方式注册处理函数
 
 注册请求处理函数:
 ```c#
-        public class IocRequestHandler : IRequestHandler<TestTray>
+        public class IocRequestHandler : IRequestHandler<TestTrigger>
         {
             public Task HandleAsync(TestTray param, IRequestHandlerContext handlerContext)
             {
@@ -253,6 +252,28 @@ ServiceAnt 在触发事件的过程中,可能会产生某些异常,正常情况�
 
 你如果订阅了位于 `IServiceBus` 中的 `OnLogBusMessage` 事件, 那么这些异常消息都会通过该事件发出.  
 如果没有, ServiceAnt 则会直接把异常上抛.
+
+## 使用ServiceAnt 的一些最佳实践
+
+### Trigger 的命名规范
+
+为了使参与开发的成员都能快速识别出 Trigger 的使用目的和选择的通信方式, 我们建议 Pub/Sub 的 Trigger 命名以 On 开头, 如：
+```c#
+        public class OnEntityHasChanged : ITrigger
+        {
+        }
+```
+
+而 Req/Resp 的 Trigger 以 Get 开头.  
+```c#
+        public class GetDataItemWithCode : ITrigger
+        {
+        }
+```
+
+### 不要过于频繁地调用 ServiceBus
+
+就算在同一进程内也不要过于频繁地调用 ServiceBus (比如在循环时), 在因为ServiceBus中为了解耦引用, 将对 Trigger 与返回值都进行了序列化, 如果调用过于频繁, 毫无疑问会带来一定的性能开支, 建议你把所需的内容一次性都获取到, 而不是等到遍历时再去获取.
 
 <h2 id="Detail">为什么会有ServiceAnt</h2>
 
