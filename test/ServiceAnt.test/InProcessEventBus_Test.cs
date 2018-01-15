@@ -463,7 +463,7 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
 
         [TestMethod]
         [ExpectedException(typeof(Exception))]
-        public async Task ShouldRaiseException_WhenNoLogDelate()
+        public async Task ShouldRaiseException_WhenPublishSetOption()
         {
             var eventBus = new InProcessServiceBus();
 
@@ -476,7 +476,25 @@ namespace YiBan.Common.BaseAbpModule.Tests.Events
             });
 
             var testEventData = new TestEventData() { Msg = "success" };
-            await eventBus.Publish(testEventData);
+            await eventBus.Publish(testEventData, new TriggerOption(false));
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public async Task ShouldRaiseException_WhenSendSetOption()
+        {
+            var eventBus = new InProcessServiceBus();
+
+            eventBus.AddDynamicRequestHandler(typeof(TestRequestData).Name, (requestData, requetContext) =>
+            {
+                return Task.Run(() =>
+                {
+                    throw new Exception("Test Exception");
+                });
+            });
+
+            var testRequestData = new TestRequestData() { Msg = "success" };
+            await eventBus.SendAsync<string>(testRequestData, new TriggerOption(false));
         }
 
         [TestMethod]

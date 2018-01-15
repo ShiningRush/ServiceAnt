@@ -122,8 +122,18 @@ namespace ServiceAnt
         /// <returns></returns>
         public Task Publish(IEventTrigger @event)
         {
-            var asyncTask = ProcessEvent(_subcriptionManager.GetEventName(@event.GetType()), JsonConvert.SerializeObject(@event));
-            return asyncTask;
+            return Publish(@event, new TriggerOption());
+        }
+
+        /// <summary>
+        /// Publish a event
+        /// </summary>
+        /// <param name="event"></param>
+        /// <param name="triggerOption"></param>
+        /// <returns></returns>
+        public Task Publish(IEventTrigger @event, TriggerOption triggerOption)
+        {
+            return ProcessEvent(_subcriptionManager.GetEventName(@event.GetType()), JsonConvert.SerializeObject(@event), triggerOption);
         }
 
         /// <summary>
@@ -132,11 +142,11 @@ namespace ServiceAnt
         /// <param name="event"></param>
         public void PublishSync(IEventTrigger @event)
         {
-            var asyncTask = ProcessEvent(_subcriptionManager.GetEventName(@event.GetType()), JsonConvert.SerializeObject(@event));
+            var asyncTask = Publish(@event, new TriggerOption());
             asyncTask.Wait();
         }
 
-        private async Task ProcessEvent(string eventName, string message)
+        private async Task ProcessEvent(string eventName, string message, TriggerOption triggerOption)
         {
             var handlerFactories = _subcriptionManager.GetHandlerFactoriesForEvent(eventName);
             foreach (var aHandlerFactory in handlerFactories)
@@ -165,6 +175,8 @@ namespace ServiceAnt
                 catch (Exception ex)
                 {
                     LogMessage( LogLevel.ERROR, "There has caught a error when publishing event.", ex);
+                    if (!triggerOption.IsIgnoreException)
+                        throw ex;
                 }
             }
         }
@@ -244,7 +256,19 @@ namespace ServiceAnt
         /// <returns></returns>
         public T Send<T>(IRequestTrigger @event)
         {
-            var asyncTask = ProcessRequest<T>(_requestHandlerManager.GetRequestName(@event.GetType()), JsonConvert.SerializeObject(@event));
+            return Send<T>(@event, new TriggerOption());
+        }
+
+        /// <summary>
+        /// Send a request sync
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="event"></param>
+        /// <param name="triggerOption"></param>
+        /// <returns></returns>
+        public T Send<T>(IRequestTrigger @event, TriggerOption triggerOption)
+        {
+            var asyncTask = SendAsync<T>(@event, triggerOption);
             asyncTask.ConfigureAwait(false);
             return asyncTask.Result;
         }
@@ -255,12 +279,24 @@ namespace ServiceAnt
         /// <typeparam name="T"></typeparam>
         /// <param name="event"></param>
         /// <returns></returns>
-        public async Task<T> SendAsync<T>(IRequestTrigger @event)
+        public Task<T> SendAsync<T>(IRequestTrigger @event)
         {
-            return await ProcessRequest<T>(_requestHandlerManager.GetRequestName(@event.GetType()), JsonConvert.SerializeObject(@event));
+            return SendAsync<T>(@event, new TriggerOption(false));
         }
 
-        private async Task<T> ProcessRequest<T>(string eventName, string message)
+        /// <summary>
+        /// Send a request async
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="event"></param>
+        /// <param name="triggerOption"></param>
+        /// <returns></returns>
+        public Task<T> SendAsync<T>(IRequestTrigger @event, TriggerOption triggerOption)
+        {
+            return ProcessRequest<T>(_requestHandlerManager.GetRequestName(@event.GetType()), JsonConvert.SerializeObject(@event), triggerOption);
+        }
+
+        private async Task<T> ProcessRequest<T>(string eventName, string message, TriggerOption triggerOption)
         {
             var handlerFactories = _requestHandlerManager.GetHandlerFactoriesForRequest(eventName);
             var requestContext = new RequestHandlerContext();
@@ -296,6 +332,8 @@ namespace ServiceAnt
                 catch (Exception ex)
                 {
                     LogMessage(LogLevel.ERROR, "There has raised a error when send request.", ex);
+                    if (!triggerOption.IsIgnoreException)
+                        throw ex;
                 }
             }
 
@@ -306,10 +344,7 @@ namespace ServiceAnt
 
         private void LogMessage(LogLevel type, string value, Exception ex)
         {
-            if (OnLogBusMessage != null)
-                OnLogBusMessage(type, value, ex);
-            else
-                throw ex;
+            OnLogBusMessage?.Invoke(type, value, ex);
         }
     }
 }
