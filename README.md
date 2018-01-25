@@ -170,6 +170,7 @@ ServiceAnt 可以开箱即用，但我相信很多使用者都会希望使用 Io
 
 * Autofac
 * Castle Windsor
+* DotNet Core
 
 如果有你正在使用却没有实现的Ioc框架，欢迎在 Issue 里提出，我会找时间实现，或者你可以实现以后给我PR.
 
@@ -189,10 +190,6 @@ Install-Package ServiceAnt.IocInstaller.Autofac
             
             // input all of your assemblies containg handler, installer will automatically register it to container
             newContainerBuilder.RegisterModule(new ServiceAntModule(System.Reflection.Assembly.GetExecutingAssembly()));
-            
-            // after builded container, you should excute ServiceAntModule.RegisterHandlers to integrate ioc
-            var autofacContainer = newContainerBuilder.Build();
-            ServiceAntModule.RegisterHandlers(autofacContainer);
 ```
 
 好的，你现在可以在你的Ioc环境中使用 ServiceAnt 了.  
