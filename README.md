@@ -221,7 +221,7 @@ Install-Package ServiceAnt.IocInstaller.Castle
 
 Castle 的安装器也支持在构造函数中放入处理函数(Handler)所在的程序集, 它会自动帮你注册到 Ioc 容器和 `IServiceBus` 中,  
 但和 Autofac 有一点很大不同的是, Castle的容器支持一些注册时的钩子, 它可以让安装器在注册依赖时自动帮你把处理函数(Handler)注册到`IServiceBus`.  
-这样一来, 如果你的安装器是在启动模块中安装的, 那么你可以不用关心你的处理函数处于哪个程序集了, 主要你在任意模块把它注册到你 Ioc 的容器中,  
+这样一来, 如果你的安装器是在启动模块中安装的, 那么你可以不用关心你的处理函数处于哪个程序集了, 只要你在任意模块把它注册到你 Ioc 的容器中,  
 ServiceAnt都会感知到, 并且自动添加它.  
 
 请看下面的示例代码.  
@@ -231,7 +231,7 @@ ServiceAnt都会感知到, 并且自动添加它.
             var newContainer = new WindsorContainer();
             
             // you dont need to input assmblies which contains handler function
-            newContainer.Install(new ServiceAntInstaller(System.Reflection.Assembly.GetExecutingAssembly()));
+            newContainer.Install(new ServiceAntInstaller());
 ```
 
 模块A(在初始化模块执行后):  
@@ -241,6 +241,29 @@ ServiceAnt都会感知到, 并且自动添加它.
 ```
 
 以上的代码可以即可将事件处理函数以Ioc的方式注册到 `IServiceBus` 中.
+
+### DotNetCore
+
+ServiceAnt 也支持 `Standard2.0` 所以你可以在 .netcore2.0 以上的版本中使用 ServiceAnt,  
+在 .net core中集成 ServiceAnt 需要先安装相关的集成包:  
+
+```
+Install-Package ServiceAnt.IocInstaller.DotNetCore
+```
+
+然后将它集成到你的应用程序中:  
+
+```c#
+        public void ConfigureServices(IServiceCollection services)
+        {
+            ...
+            
+            // installer will automaticlly register the handler function to servicebus
+            services.AddServiceAnt(System.Reflection.Assembly.GetExecutingAssembly());
+            
+            ...
+        }
+```
 
 ## 异常处理与日志
 
@@ -277,14 +300,14 @@ ServiceAnt 在触发处理函数的过程中,可能会产生某些异常,正常�
 
 为了使参与开发的成员都能快速识别出 Trigger 的使用目的和选择的通信方式, 我们建议 Pub/Sub 的 Trigger 命名以 On 开头, 如：
 ```c#
-        public class OnEntityHasChanged : ITrigger
+        public class OnEntityHasChanged : IEventTrigger
         {
         }
 ```
 
 而 Req/Resp 的 Trigger 以 Get 开头.  
 ```c#
-        public class GetDataItemWithCode : ITrigger
+        public class GetDataItemWithCode : IRequestTrigger
         {
         }
 ```
@@ -308,7 +331,7 @@ ServiceAnt 在触发处理函数的过程中,可能会产生某些异常,正常�
 
 在参考了Abp, Medirator, NServerBus以及微软的示例项目 EShopContainer 我决定自己实现一个服务总线, 它要具有以下特点：
 * 支持隐式注册处理函数
-* 支持Pub/Sub模式
+* 支持 Req/Resp 模式
 * 事件的接收与发布对象是非引用的(指你可以在不同模块间建立各自的事件类，只需要保证它们名称与结构相同即可)  
 
 所以ServiceAnt出现了, ServiceAnt 的初期目标是一个进程内的消息中介者, 后期有时间会开发分布式的版本。
