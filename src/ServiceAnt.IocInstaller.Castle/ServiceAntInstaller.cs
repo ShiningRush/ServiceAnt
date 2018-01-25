@@ -3,6 +3,7 @@ using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
 using ServiceAnt.Handler.Request;
+using ServiceAnt.Infrastructure.Dependency;
 using ServiceAnt.Request.Handler;
 using ServiceAnt.Subscription;
 using System;
@@ -42,7 +43,8 @@ namespace ServiceAnt.IocInstaller.Castle
             _container = container;
 
             container.Register(
-                Component.For<IServiceBus>().Instance(InProcessServiceBus.Default),
+                Component.For<IIocResolver>().UsingFactoryMethod(ctx => new IocResolver(container)).LifestyleTransient(),
+                Component.For<IServiceBus>().ImplementedBy<InProcessServiceBus>().LifestyleSingleton(),
                 Component.For<ISubscriptionManager>().ImplementedBy<InMemorySubscriptionsManager>().LifestyleSingleton(),
                 Component.For<IRequestHandlerManager>().ImplementedBy<InMemoryRequestHandlerManager>().LifestyleSingleton());
 
@@ -75,15 +77,13 @@ namespace ServiceAnt.IocInstaller.Castle
                     continue;
                 }
 
-                var resolver = new IocResolver(_container);
-
                 var genericArgs = aInterface.GetGenericArguments();
                 if (genericArgs.Length == 1)
                 {
                     if (typeof(IRequestHandler).GetTypeInfo().IsAssignableFrom(aInterface))
-                        _serviceBus.AddRequestHandler(genericArgs[0], new Base.IocHandlerFactory(resolver, handler.ComponentModel.Implementation, genericArgs[0]));
+                        _serviceBus.AddRequestHandler(genericArgs[0], new Base.IocHandlerFactory(handler.ComponentModel.Implementation, genericArgs[0]));
                     else
-                        _serviceBus.AddSubscription(genericArgs[0], new Base.IocHandlerFactory(resolver, handler.ComponentModel.Implementation, genericArgs[0]));
+                        _serviceBus.AddSubscription(genericArgs[0], new Base.IocHandlerFactory(handler.ComponentModel.Implementation, genericArgs[0]));
                 }
             }
         }

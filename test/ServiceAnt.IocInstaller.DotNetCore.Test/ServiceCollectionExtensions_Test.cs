@@ -1,35 +1,33 @@
-﻿using System;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Threading.Tasks;
-using Autofac;
-using ServiceAnt.Handler.Subscription.Handler;
-using ServiceAnt.Request.Handler;
-using ServiceAnt.Handler;
-using ServiceAnt.Subscription.Handler;
-using ServiceAnt.Base;
-using ServiceAnt.Subscription;
 using ServiceAnt.Request;
+using ServiceAnt.Request.Handler;
+using ServiceAnt.Subscription;
+using ServiceAnt.Subscription.Handler;
+using System;
+using System.Threading.Tasks;
 
-namespace ServiceAnt.IocInstaller.Autofac.Test
+namespace ServiceAnt.IocInstaller.DotNetCore.Test
 {
     [TestClass]
-    public class ServiceAntModule_Test
+    public class ServiceCollectionExtensions_Test
     {
         private static string RESULT_CONTAINER = "";
+        private readonly IServiceProvider _provider;
 
-        public ServiceAntModule_Test()
+        public ServiceCollectionExtensions_Test()
         {
+            IServiceCollection services = new ServiceCollection();
+            services.AddServiceAnt(System.Reflection.Assembly.GetExecutingAssembly());
+            _provider = services.BuildServiceProvider();
         }
 
         [TestMethod]
         public async Task CanHandleEventByIocHandler()
         {
             var testValue = "HelloWorld";
-            var newContainer = new ContainerBuilder();
-            newContainer.RegisterModule(new ServiceAntModule(System.Reflection.Assembly.GetExecutingAssembly()));
-            var autofacContainer = newContainer.Build();
 
-            await autofacContainer.Resolve<IServiceBus>().Publish(new TestEventTrigger() { Result = testValue });
+            await _provider.GetService<IServiceBus>().Publish(new TestEventTrigger() { Result = testValue });
 
             Assert.AreEqual(testValue, RESULT_CONTAINER);
         }
@@ -38,11 +36,8 @@ namespace ServiceAnt.IocInstaller.Autofac.Test
         public async Task CanHandleRequestByIocHandler()
         {
             var testValue = "HelloWorld2";
-            var newContainer = new ContainerBuilder();
-            newContainer.RegisterModule(new ServiceAntModule(System.Reflection.Assembly.GetExecutingAssembly()));
-            var autofacContainer = newContainer.Build();
 
-            var result = await autofacContainer.Resolve<IServiceBus>().SendAsync<string>(new TestRequestTrigger() { Result = testValue });
+            var result = await _provider.GetService<IServiceBus>().SendAsync<string>(new TestRequestTrigger() { Result = testValue });
 
             Assert.AreEqual(testValue, result);
         }

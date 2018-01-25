@@ -29,10 +29,30 @@ namespace ServiceAnt.IocInstaller.Autofac
         }
 
         /// <summary>
-        /// Excute this method ater you builded container
+        /// Intall dependenies and register handler function
         /// </summary>
-        /// <param name="container"></param>
-        public static void RegisterHandlers(IComponentContext container)
+        /// <param name="builder"></param>
+        protected override void Load(ContainerBuilder builder)
+        {
+            var subcriptionsManager = new InMemorySubscriptionsManager();
+            var requestManager = new InMemoryRequestHandlerManager();
+
+            RegisterHandlers(subcriptionsManager, requestManager);
+            builder.RegisterInstance(subcriptionsManager).As<ISubscriptionManager>().SingleInstance();
+            builder.RegisterInstance(requestManager).As<IRequestHandlerManager>().SingleInstance();
+
+            builder.Register<IIocResolver>(ctx =>
+            {
+                return new IocResolver(ctx.Resolve<IComponentContext>());
+            });
+
+            builder.RegisterType<InProcessServiceBus>().AsSelf().As<IServiceBus>().SingleInstance();
+
+            builder.RegisterAssemblyTypes(_handlerAssemblies).AsSelf();
+
+        }
+
+        private void RegisterHandlers(ISubscriptionManager subcriptionsManager, IRequestHandlerManager requestManager )
         {
             foreach (var aHandlerAssembly in _handlerAssemblies)
             {
@@ -40,30 +60,12 @@ namespace ServiceAnt.IocInstaller.Autofac
 
                 foreach (var aHandler in handlerTypes)
                 {
-                    RegisterHandlerType(container, aHandler);
+                    RegisterHandlerType(subcriptionsManager, requestManager, aHandler);
                 }
             }
         }
 
-        /// <summary>
-        /// Intall dependenies and register handler function
-        /// </summary>
-        /// <param name="builder"></param>
-        protected override void Load(ContainerBuilder builder)
-        {
-            var serviceBus = InProcessServiceBus.Default;
-            builder.RegisterInstance(serviceBus).As<IServiceBus>();
-            builder.RegisterType<InMemorySubscriptionsManager>().AsSelf().As<ISubscriptionManager>().SingleInstance();
-            builder.RegisterType<InMemoryRequestHandlerManager>().AsSelf().As<IRequestHandlerManager>().SingleInstance();
-
-            builder.Register<IocResolver>(ctx =>
-            {
-                return new IocResolver(ctx.Resolve<IComponentContext>());
-            });
-
-            builder.RegisterAssemblyTypes(_handlerAssemblies).AsSelf();
-        }
-        private static void RegisterHandlerType(IComponentContext container, Type aHandlerType)
+        private void RegisterHandlerType(ISubscriptionManager subcriptionsManager, IRequestHandlerManager requestManager , Type aHandlerType)
         {
             var interfaces = aHandlerType.GetInterfaces();
             foreach (var aInterface in interfaces)
@@ -77,9 +79,9 @@ namespace ServiceAnt.IocInstaller.Autofac
                 if (genericArgs.Length == 1)
                 {
                     if (typeof(IRequestHandler).IsAssignableFrom(aInterface))
-                        container.Resolve<IServiceBus>().AddRequestHandler(genericArgs[0], new IocHandlerFactory(container.Resolve<IocResolver>(), aHandlerType, genericArgs[0]));
+                        requestManager.AddRequestHandler(genericArgs[0], new IocHandlerFactory( aHandlerType, genericArgs[0]));
                     else
-                        container.Resolve<IServiceBus>().AddSubscription(genericArgs[0], new IocHandlerFactory(container.Resolve<IocResolver>(), aHandlerType, genericArgs[0]));
+                        subcriptionsManager.AddSubscription(genericArgs[0], new IocHandlerFactory( aHandlerType, genericArgs[0]));
                 }
             }
         }

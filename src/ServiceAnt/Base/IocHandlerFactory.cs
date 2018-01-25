@@ -16,14 +16,21 @@ namespace ServiceAnt.Base
         /// <summary>
         /// ctor
         /// </summary>
-        /// <param name="iocResolver"></param>
         /// <param name="handlerType"></param>
         /// <param name="localEventType"></param>
-        public IocHandlerFactory(IIocResolver iocResolver, Type handlerType, Type localEventType)
+        public IocHandlerFactory(Type handlerType, Type localEventType)
         {
-            _iocResolver = iocResolver;
             _handlerType = handlerType;
             _localEventType = localEventType;
+        }
+
+        /// <summary>
+        /// set the IocResolver to resolve service
+        /// </summary>
+        /// <param name="iocResolver"></param>
+        public void SetIocResolver(IIocResolver iocResolver)
+        {
+            _iocResolver = iocResolver;
         }
 
         /// <summary>

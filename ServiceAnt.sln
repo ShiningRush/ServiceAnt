@@ -26,6 +26,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{4FE1FF00-52E
 		src\Directory.Build.props = src\Directory.Build.props
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceAnt.IocInstaller.DotNetCore", "src\ServiceAnt.IocInstaller.DotNetCore\ServiceAnt.IocInstaller.DotNetCore.csproj", "{47B742B7-62A5-45EC-99F2-1700F60D138E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceAnt.IocInstaller.DotNetCore.Test", "test\ServiceAnt.IocInstaller.DotNetCore.Test\ServiceAnt.IocInstaller.DotNetCore.Test.csproj", "{2A67FC30-B4C3-4945-BFF7-E25A5C496ADE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -56,6 +60,14 @@ Global
 		{ABC9A287-31CC-422B-84A2-6EAEF0BD448E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ABC9A287-31CC-422B-84A2-6EAEF0BD448E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ABC9A287-31CC-422B-84A2-6EAEF0BD448E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{47B742B7-62A5-45EC-99F2-1700F60D138E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{47B742B7-62A5-45EC-99F2-1700F60D138E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{47B742B7-62A5-45EC-99F2-1700F60D138E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{47B742B7-62A5-45EC-99F2-1700F60D138E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A67FC30-B4C3-4945-BFF7-E25A5C496ADE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A67FC30-B4C3-4945-BFF7-E25A5C496ADE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A67FC30-B4C3-4945-BFF7-E25A5C496ADE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A67FC30-B4C3-4945-BFF7-E25A5C496ADE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -68,6 +80,8 @@ Global
 		{1FA5221C-9A54-4132-B7CF-CF7CC7A30E59} = {0E041832-D5A5-4220-BD7D-95B03E66FF98}
 		{ABC9A287-31CC-422B-84A2-6EAEF0BD448E} = {BDFDFA2C-DA6F-4405-B7B0-31D1B0997150}
 		{4FE1FF00-52E7-4311-A21F-7C34831E62F1} = {5220EBDE-1FFD-4155-85A9-9A87DF0C073C}
+		{47B742B7-62A5-45EC-99F2-1700F60D138E} = {0E041832-D5A5-4220-BD7D-95B03E66FF98}
+		{2A67FC30-B4C3-4945-BFF7-E25A5C496ADE} = {BDFDFA2C-DA6F-4405-B7B0-31D1B0997150}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {52E5EADF-2B54-4C50-BF32-93550974966D}

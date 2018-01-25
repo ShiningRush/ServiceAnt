@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using ServiceAnt.Base;
 using ServiceAnt.Handler.Request;
 using ServiceAnt.Handler.Subscription.Handler;
+using ServiceAnt.Infrastructure.Dependency;
 using ServiceAnt.Request;
 using ServiceAnt.Request.Handler;
 using ServiceAnt.Subscription;
@@ -17,20 +18,37 @@ namespace ServiceAnt
     /// </summary>
     public class InProcessServiceBus : IServiceBus
     {
-        private ISubscriptionManager _subcriptionManager;
-        private IRequestHandlerManager _requestHandlerManager;
+        private readonly ISubscriptionManager _subcriptionManager;
+        private readonly IRequestHandlerManager _requestHandlerManager;
+        private readonly IIocResolver _iocResolver;
 
         /// <summary>
         /// Use to log message of bus
         /// </summary>
         public event LogBusMessage OnLogBusMessage;
 
-        private static Lazy<InProcessServiceBus> _defaultInstance = new Lazy<InProcessServiceBus>();
+        private static InProcessServiceBus _defaultInstance;
+        private static object _lock = new object();
 
         /// <summary>
         /// Default Instance
         /// </summary>
-        public static InProcessServiceBus Default => _defaultInstance.Value;
+        public static InProcessServiceBus Default
+        {
+            get
+            {
+                if (_defaultInstance == null)
+                {
+                    lock (_lock)
+                    {
+                        if (_defaultInstance == null)
+                            _defaultInstance = new InProcessServiceBus();
+                    }
+                }
+
+                return _defaultInstance;
+            }
+        }
 
         /// <summary>
         /// Constructor
@@ -46,10 +64,13 @@ namespace ServiceAnt
         /// </summary>
         /// <param name="subcriptionManager"></param>
         /// <param name="requestHandlerManager"></param>
-        public InProcessServiceBus(ISubscriptionManager subcriptionManager, IRequestHandlerManager requestHandlerManager)
+        /// <param name="iocResolver"></param>
+        public InProcessServiceBus(ISubscriptionManager subcriptionManager, IRequestHandlerManager requestHandlerManager, IIocResolver iocResolver)
         {
             _subcriptionManager = subcriptionManager;
             _requestHandlerManager = requestHandlerManager;
+            _iocResolver = iocResolver;
+            _defaultInstance = this;
         }
 
         #region Pub/Sub
@@ -153,6 +174,7 @@ namespace ServiceAnt
             {
                 try
                 {
+                    SetTheIocResolverIfIocHandlerFactory(aHandlerFactory);
                     var aHandler = aHandlerFactory.GetHandler();
                     if (aHandler is IDynamicEventHandler)
                     {
@@ -307,7 +329,7 @@ namespace ServiceAnt
             {
                 if (requestContext.IsEnd)
                     break;
-
+                SetTheIocResolverIfIocHandlerFactory(aHandlerFactory);
                 try
                 {
                     var aHandler = aHandlerFactory.GetHandler();
@@ -345,6 +367,13 @@ namespace ServiceAnt
         private void LogMessage(LogLevel type, string value, Exception ex)
         {
             OnLogBusMessage?.Invoke(type, value, ex);
+        }
+
+        private void SetTheIocResolverIfIocHandlerFactory(IHandlerFactory aHandlerFactory)
+        {
+            var iocHandlerFactory = aHandlerFactory as IocHandlerFactory;
+            if (iocHandlerFactory != null)
+                iocHandlerFactory.SetIocResolver(_iocResolver);
         }
     }
 }
