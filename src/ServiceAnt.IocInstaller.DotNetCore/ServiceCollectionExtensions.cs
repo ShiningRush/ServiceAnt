@@ -12,10 +12,18 @@ using ServiceAnt;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
+    /// <summary>
+    /// Extensions for service collention
+    /// </summary>
     public static class ServiceCollectionExtensions
     {
         private static System.Reflection.Assembly[] _handlerAssemblies;
 
+        /// <summary>
+        /// Add serviceant to your dotnet core ioc
+        /// </summary>
+        /// <param name="this"></param>
+        /// <param name="handlerAssemblies">the assemblies which containg handlers, those will be registered to container</param>
         public static void AddServiceAnt(this IServiceCollection @this, params Assembly[] handlerAssemblies)
         {
             _handlerAssemblies = handlerAssemblies;

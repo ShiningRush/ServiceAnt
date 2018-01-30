@@ -27,7 +27,7 @@ namespace ServiceAnt.IocInstaller.Castle
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="handlerAssemblies"> the assemblies which containg handler, those will be register to container</param>
+        /// <param name="handlerAssemblies"> the assemblies which containg handlers, those will be registered to container</param>
         public ServiceAntInstaller(params Assembly[] handlerAssemblies)
         {
             _handlerAssemblies = handlerAssemblies;

@@ -22,7 +22,7 @@ namespace ServiceAnt.IocInstaller.Autofac
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="handlerAssemblies"> the assemblies which containg handler, those will be register to container</param>
+        /// <param name="handlerAssemblies"> the assemblies which containg handlers, those will be registered to container</param>
         public ServiceAntModule(params System.Reflection.Assembly[] handlerAssemblies)
         {
             _handlerAssemblies = handlerAssemblies;
