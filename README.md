@@ -4,7 +4,7 @@
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/ShiningRush/ServiceAnt/blob/master/LICENSE)
 [![NuGet](https://img.shields.io/nuget/vpre/serviceant.svg)](https://www.nuget.org/packages/ServiceAnt)
 
-[中文介绍请点击这里](https://github.com/ShiningRush/PdfComponentComparition/blob/master/README.zh-cn.md)  
+[中文介绍请点击这里](https://github.com/ShiningRush/ServiceAnt/blob/master/README.zh-cn.md)  
 
 ServiceAnt is a lightweight servicebus which is out-of-the-box. Well, though it can not be called servicebus but it will in soon.  
 It is only running in-process system, but i will make it run distributed system in future.  
@@ -140,7 +140,7 @@ However, We have not found any problems to register handler with delegate and wh
 
 ### Register with IOC
 
-Before using Ioc registration, we need to integrate ServiceAnt into your Ioc environment first. Please refer to [Ioc Integration](# IocIntegration) to integrate ServiceAnt into your Ioc.  
+Before using Ioc registration, we need to integrate ServiceAnt into your Ioc environment first. Please refer to [Ioc Integration](#IocIntegration) to integrate ServiceAnt into your Ioc.  
 
 Register event handler:
 ```c#
