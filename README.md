@@ -335,9 +335,9 @@ The reason is that our team used DDD when developing an enterprise application a
 这也就意味着，你为了在A模块中使用B模块发布的事件，你必须让两个上下文都引用这个事件对象，这显然加深了模块间的耦合。  
 
 在参考了Abp, Medirator, NServerBus以及微软的示例项目 eShopOnContainers 我决定自己实现一个服务总线, 它要具有以下特点：
-* 支持委托注册处理函数
-* 支持 Req/Resp 模式
-* 事件的接收与发布对象是非引用的(指你可以在不同模块间建立各自的事件类，只需要保证它们名称与结构相同即可)  
+* Supporting registering handler with delegate
+* Supporting Req/Resp
+* Trigger is not refferenced
 
 所以ServiceAnt出现了, ServiceAnt 的初期目标是一个进程内的消息中介者, 后期有时间会开发分布式的版本。
 
