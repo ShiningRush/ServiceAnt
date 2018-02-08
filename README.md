@@ -326,29 +326,27 @@ Do not call ServiceBus frequently even ServiceAnt work in in-process enviroment,
 
 The reason is that our team used DDD when developing an enterprise application and then split our business logic into a number of bounding contexts with low in coupling and high in cohesion per context.  
 
-但无论再怎么低耦合，总会有一些高层次的交互，这些被称为“边界点”，通常在分布式部署中，我们会选择Webapi 或者 WebServie 等远程通信手段来进行交互  
+But no matter how low the coupling, there will always be some high-level interaction, these are called "border points", usually in a distributed deployment, we will choose remote communication such as Webapi or WebServie to impletement it.  
 
-遗憾的是，我们的应用是线下的，并发量也并不需要到集群这样重量级的解决方案，所以我们使用Abp的插件加载机制为基础设施, 
-将每个上下文都实现成了一个个独立的项目模块.  
+Unfortunately, our application is offline, and concurrent traffic does not require such a heavyweight solution as clustering, so we implemented each context as an Project module using Abp's plug-in loading mechanism.   
 
-项目初期我们使用 Abp 提供的事件总线作为模块之间交互的方式, 但它有一个很不好的地方是, 它的事件引用必须是显式的原对象引用。    
-这也就意味着，你为了在A模块中使用B模块发布的事件，你必须让两个上下文都引用这个事件对象，这显然加深了模块间的耦合。  
+Earlier in the project we used the event bus provided by Abp as a way to interact with the module, but one of the bad things about it is that its event reference must be an explicit reference to the original object.This means that you have to have both contexts reference this event object in order to use the events posted by the B module in module A, which obviously deepens the coupling between the modules.  
 
-在参考了Abp, Medirator, NServerBus以及微软的示例项目 eShopOnContainers 我决定自己实现一个服务总线, 它要具有以下特点：
+With reference to Abp, Medirator, NServerBus and Microsoft's example project eShopOnContainers, I decided to implement myself a service bus that has the following features：
 * Supporting registering handler with delegate
 * Supporting Req/Resp
 * Trigger is not refferenced
 
-所以ServiceAnt出现了, ServiceAnt 的初期目标是一个进程内的消息中介者, 后期有时间会开发分布式的版本。
+ServiceAnt appeared, the initial goal of ServiceAnt is a message mediator within the process, late have time to develop a distributed version.
 
-### 与其他类似框架的不同之处
+### Differences from other similar frameworks
 
-这里只作一些不同之处的分析, 并不代表优劣, 请结合自己项目的情况来合理选择.
+Here only for some of the differences between the thoese, does not represent the merits, please choose a suitable one with your project.
 
-`Mediator`: Mediator 只支持Ioc来注册处理函数, 并且不支持委托注册. 另外它的定位是进程内使用的基础设施, 不适用于分布式系统, 在`eshopcontainer`中,它被作为单个微服务下实现 CQRS 的基础设施.
+`Mediator`: Mediator only supports Ioc to register handlers and does not support delegate registration. In addition, it is positioned as an in-process infrastructure and not for distributed systems. In eshoponcontainer, it is implemented as a CQRS for a single microservice infrastructure.
 
-`NServerBus`: NServerBus 是一个偏重的框架, 而且它的定位就是解决分布式架构中的通信问题，并没有进程内的实现版本(它的Learning Transport可以看作进程内的实现，但官方并不推荐使用), 它更适用于分布式的复杂系统来说.
+`NServerBus`: NServerBus is a biased framework, and its positioning is to solve the problem of communication in distributed architecture, there is no in-process implementation version (its Learning Transport can be seen as an in-process implementation, but the official is not recommended), it More suitable for distributed complex systems.
 
-`Abp`: 在上面已经讨论过了, 另外它也不支持 Pub/Sub.如果你的项目不采用多模块的机制, 或者不介意模块间的相互引用, Abp自带的事件还是不错的.
+`Abp`: Discussed above, and it also does not support Pub / Sub. If your project does not use a multi-module mechanism, or do not mind the mutual reference between modules, Abp is a good choice.
 
-`eShopOnContainers`: 这只是微软的示例项目，它其中的事件总线是分布式的，有两个实现，一个基于RabbitMQ一个基于AzureMQ, 它也没有作为框架发布到Nuget上.
+`eShopOnContainers`: This is just an example project from Microsoft, where the event bus is distributed, with two implementations, one based on RabbitMQ and one based on AzureMQ, and it is also not published as a framework on Nuget.
